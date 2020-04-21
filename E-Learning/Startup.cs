@@ -99,6 +99,10 @@ namespace E_Learning
             services.AddScoped<IEmailMessageRepository, SqlEmailMessageRepository>();
             services.AddScoped<IDirectoryRepository, SqlDirectoryRepository>();
             services.AddScoped<IUploadedFileRepository, SqlUploadedFileRepository>();
+            services.AddScoped<ICourseRepository, SqlCourseRepository>();
+            services.AddScoped<ISectionRepository, SqlSectionRepository>();
+            services.AddScoped<ISessionRepository, SqlSessionRepository>();
+            services.AddScoped<ISessionContentRepository, SqlSessionContentRepository>();
 
             services.AddMvc(options =>
             {

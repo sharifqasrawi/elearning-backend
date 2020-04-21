@@ -21,5 +21,11 @@ namespace E_Learning.Models
         public DbSet<UploadedFile> UploadedFiles { get; set; }
         public DbSet<EmailMessage> EmailMessages { get; set; }
 
+        public DbSet<Course>  Courses{ get; set; }
+
+        public DbSet<Section> Sections { get; set; }
+        public DbSet<Session> Sessions { get; set; }
+        public DbSet<SessionContent> SessionContents { get; set; }
+
     }
 }
