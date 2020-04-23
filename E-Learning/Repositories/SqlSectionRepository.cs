@@ -1,4 +1,5 @@
 ﻿using E_Learning.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,27 +18,48 @@ namespace E_Learning.Repositories
 
         public Section Create(Section section)
         {
-            throw new NotImplementedException();
+            dBContext.Sections.Add(section);
+            dBContext.SaveChanges();
+
+            return section;
         }
 
         public Section Delete(long id)
         {
-            throw new NotImplementedException();
+            var section = dBContext.Sections.Find(id);
+            if(section != null)
+            {
+                dBContext.Sections.Remove(section);
+                dBContext.SaveChanges();
+            }
+            return section;
         }
 
         public Section FindById(long id)
         {
-            throw new NotImplementedException();
+            var section = dBContext.Sections
+                                   .Include("Course")
+                                   .Include("Sessions")
+                                   .SingleOrDefault(s => s.Id == id);
+
+            return section;
         }
 
         public IEnumerable<Section> GetSections()
         {
-            throw new NotImplementedException();
+            var sections = dBContext.Sections
+                                   .Include("Course")
+                                   .Include("Sessions");
+
+            return sections;
         }
 
         public Section Update(Section sectionChanges)
         {
-            throw new NotImplementedException();
+            var section = dBContext.Sections.Attach(sectionChanges);
+            section.State = EntityState.Modified;
+            dBContext.SaveChanges();
+            return sectionChanges;
         }
     }
 }

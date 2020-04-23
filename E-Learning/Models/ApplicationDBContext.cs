@@ -27,5 +27,7 @@ namespace E_Learning.Models
         public DbSet<Session> Sessions { get; set; }
         public DbSet<SessionContent> SessionContents { get; set; }
 
+        public DbSet<Tag> Tags { get; set; }
+
     }
 }

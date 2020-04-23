@@ -103,6 +103,7 @@ namespace E_Learning
             services.AddScoped<ISectionRepository, SqlSectionRepository>();
             services.AddScoped<ISessionRepository, SqlSessionRepository>();
             services.AddScoped<ISessionContentRepository, SqlSessionContentRepository>();
+            services.AddScoped<ITagRepository, SqlTagRepository>();
 
             services.AddMvc(options =>
             {

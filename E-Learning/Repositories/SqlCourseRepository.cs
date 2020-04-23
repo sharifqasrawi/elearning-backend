@@ -1,4 +1,5 @@
 ﻿using E_Learning.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,27 +18,60 @@ namespace E_Learning.Repositories
 
         public Course Create(Course course)
         {
-            throw new NotImplementedException();
+            dBContext.Courses.Add(course);
+            dBContext.SaveChanges();
+
+            return course;
         }
 
         public Course Delete(long id)
         {
-            throw new NotImplementedException();
+            var course = dBContext.Courses.Find(id);
+            if(course != null)
+            {
+                dBContext.Courses.Remove(course);
+                dBContext.SaveChanges();
+            }
+            return course;
         }
 
         public Course FindById(long id)
         {
-            throw new NotImplementedException();
+            var course = dBContext.Courses
+                                  .Include("Category")
+                                  .Include("Sections")
+                                  .SingleOrDefault(c => c.Id == id);
+
+
+            return course;
+        }
+
+        public Course FindBySlug(string slug)
+        {
+            var course = dBContext.Courses
+                                 .Include("Category")
+                                 .Include("Sections")
+                                 .SingleOrDefault(c => c.Slug_EN == slug);
+
+
+            return course;
         }
 
         public IEnumerable<Course> GetCourses()
         {
-            throw new NotImplementedException();
+            var courses = dBContext.Courses
+                                  .Include("Category")
+                                  .Include("Sections");
+
+            return courses;
         }
 
         public Course Update(Course courseChanges)
         {
-            throw new NotImplementedException();
+            var course = dBContext.Courses.Attach(courseChanges);
+            course.State = EntityState.Modified;
+            dBContext.SaveChanges();
+            return courseChanges;
         }
     }
 }

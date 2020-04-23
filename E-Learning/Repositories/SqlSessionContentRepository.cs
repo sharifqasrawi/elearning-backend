@@ -1,4 +1,5 @@
 ﻿using E_Learning.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,27 +18,47 @@ namespace E_Learning.Repositories
 
         public SessionContent Create(SessionContent SessionContent)
         {
-            throw new NotImplementedException();
+            dBContext.SessionContents.Add(SessionContent);
+            dBContext.SaveChanges();
+
+            return SessionContent;
         }
 
         public SessionContent Delete(long id)
         {
-            throw new NotImplementedException();
+            var sessionContent = dBContext.SessionContents.Find(id);
+            if(sessionContent != null)
+            {
+                dBContext.SessionContents.Remove(sessionContent);
+                dBContext.SaveChanges();
+            }
+
+            return sessionContent;
         }
 
         public SessionContent FindById(long id)
         {
-            throw new NotImplementedException();
+            var sessionContent = dBContext.SessionContents
+                                          .Include("Session")
+                                          .SingleOrDefault(s => s.Id == id);
+
+            return sessionContent;
         }
 
         public IEnumerable<SessionContent> GetSessionContents()
         {
-            throw new NotImplementedException();
+            var sessionContents = dBContext.SessionContents
+                                          .Include("Session");
+
+            return sessionContents;
         }
 
         public SessionContent Update(SessionContent sessionContentChanges)
         {
-            throw new NotImplementedException();
+            var sessionContent = dBContext.SessionContents.Attach(sessionContentChanges);
+            sessionContent.State = EntityState.Modified;
+            dBContext.SaveChanges();
+            return sessionContentChanges;
         }
     }
 }

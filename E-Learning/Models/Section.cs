@@ -10,6 +10,7 @@ namespace E_Learning.Models
         public long Id { get; set; }
         public int Order { get; set; }
         public string Name_EN { get; set; }
+        public string Slug_EN { get; set; }
         public Course Course { get; set; }
 
         public DateTime CreatedAt { get; set; }

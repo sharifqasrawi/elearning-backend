@@ -4,14 +4,16 @@ using E_Learning.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace E_Learning.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20200421164054_addedSlug")]
+    partial class addedSlug
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -181,17 +183,11 @@ namespace E_Learning.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("IsFree")
+                    b.Property<bool>("IsFree")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("IsPublished")
+                    b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
-
-                    b.Property<string>("Languages")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Level")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Prerequisites_EN")
                         .HasColumnType("nvarchar(max)");
@@ -199,7 +195,7 @@ namespace E_Learning.Migrations
                     b.Property<float?>("Price")
                         .HasColumnType("real");
 
-                    b.Property<DateTime?>("PublishedAt")
+                    b.Property<DateTime>("PublishedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Slug_EN")
@@ -424,21 +420,6 @@ namespace E_Learning.Migrations
                     b.HasIndex("SessionId");
 
                     b.ToTable("SessionContents");
-                });
-
-            modelBuilder.Entity("E_Learning.Models.Tag", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("E_Learning.Models.UploadedFile", b =>
