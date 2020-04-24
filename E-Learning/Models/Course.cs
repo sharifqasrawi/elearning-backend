@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace E_Learning.Models
@@ -16,11 +17,9 @@ namespace E_Learning.Models
         public string Level { get; set; }
         public int Duration { get; set; }
         public string ImagePath { get; set; }
-        public ApplicationUser Author { get; set; }
         public float? Price { get; set; }
         public bool? IsFree { get; set; }
         public bool? IsPublished { get; set; }
-        public Category Category { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }
@@ -29,7 +28,12 @@ namespace E_Learning.Models
         public DateTime? DeletedAt { get; set; }
         public string DeletedBy { get; set; }
 
+        public Category Category { get; set; }
+
+       //[JsonIgnore]
+       // public ApplicationUser Author { get; set; }
         public virtual IEnumerable<Section> Sections { get; set; }
+        public virtual IEnumerable<CourseTag> CourseTags { get; set; }
 
     }
 }

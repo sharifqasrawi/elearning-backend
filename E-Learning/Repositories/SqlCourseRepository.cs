@@ -40,6 +40,8 @@ namespace E_Learning.Repositories
             var course = dBContext.Courses
                                   .Include("Category")
                                   .Include("Sections")
+                                  .Include("CourseTags")
+                                  .Include("CourseTags.Tag")
                                   .SingleOrDefault(c => c.Id == id);
 
 
@@ -51,6 +53,8 @@ namespace E_Learning.Repositories
             var course = dBContext.Courses
                                  .Include("Category")
                                  .Include("Sections")
+                                 .Include("CourseTags")
+                                 .Include("CourseTags.Tag")
                                  .SingleOrDefault(c => c.Slug_EN == slug);
 
 
@@ -61,7 +65,9 @@ namespace E_Learning.Repositories
         {
             var courses = dBContext.Courses
                                   .Include("Category")
-                                  .Include("Sections");
+                                  .Include("Sections")
+                                  .Include("CourseTags")
+                                  .Include("CourseTags.Tag");
 
             return courses;
         }

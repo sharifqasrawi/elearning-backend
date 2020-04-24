@@ -48,7 +48,6 @@ namespace E_Learning.Repositories
         public IEnumerable<Section> GetSections()
         {
             var sections = dBContext.Sections
-                                   .Include("Course")
                                    .Include("Sessions");
 
             return sections;

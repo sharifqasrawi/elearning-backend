@@ -132,6 +132,7 @@ namespace E_Learning.Controllers
                     return NotFound();
 
                 cat.Title_EN = category.Title_EN;
+                cat.Slug = new SlugHelper().GenerateSlug(category.Title_EN);
                 cat.UpdatedAt = DateTime.Now;
                 cat.UpdatedBy = category.UpdatedBy;
 

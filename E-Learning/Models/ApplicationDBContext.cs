@@ -29,5 +29,23 @@ namespace E_Learning.Models
 
         public DbSet<Tag> Tags { get; set; }
 
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<CourseTag>()
+           .HasKey(t => new { t.CourseId, t.TagId });
+
+            modelBuilder.Entity<CourseTag>()
+                .HasOne(pt => pt.Course)
+                .WithMany(p => p.CourseTags)
+                .HasForeignKey(pt => pt.CourseId);
+
+            modelBuilder.Entity<CourseTag>()
+                .HasOne(pt => pt.Tag)
+                .WithMany(t => t.CourseTags)
+                .HasForeignKey(pt => pt.TagId);
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
