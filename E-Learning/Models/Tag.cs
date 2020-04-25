@@ -10,6 +10,6 @@ namespace E_Learning.Models
         public long Id { get; set; }
         public string Name { get; set; }
 
-        public virtual IEnumerable<CourseTag> CourseTags { get; set; }
+        public IList<CourseTag> CourseTags { get; set; }
     }
 }

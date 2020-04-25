@@ -32,8 +32,8 @@ namespace E_Learning.Models
 
        //[JsonIgnore]
        // public ApplicationUser Author { get; set; }
-        public virtual IEnumerable<Section> Sections { get; set; }
-        public virtual IEnumerable<CourseTag> CourseTags { get; set; }
+        public IList<Section> Sections { get; set; }
+        public IList<CourseTag> CourseTags { get; set; }
 
     }
 }

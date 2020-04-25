@@ -21,6 +21,6 @@ namespace E_Learning.Models
         public DateTime? DeletedAt { get; set; }
         public string DeletedBy { get; set; }
 
-        public virtual IEnumerable<SessionContent> Contents { get; set; }
+        public IList<SessionContent> Contents { get; set; }
     }
 }

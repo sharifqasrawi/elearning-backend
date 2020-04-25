@@ -19,11 +19,13 @@ namespace E_Learning.Controllers
         private readonly ICourseRepository _courseRepository;
         private readonly ITagRepository _tagRepository;
         private readonly ISectionRepository _sectionRepository;
+        private readonly ISessionRepository _sessionRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ICategoryRepository _categoryRepository;
         public CoursesController(ICourseRepository courseRepository,
                                  ITagRepository tagRepository,
                                  ISectionRepository sectionRepository,
+                                 ISessionRepository sessionRepository,
                                  UserManager<ApplicationUser> userManager,
                                  ICategoryRepository categoryRepository)
         {
@@ -32,6 +34,7 @@ namespace E_Learning.Controllers
             _userManager = userManager;
             _categoryRepository = categoryRepository;
             _sectionRepository = sectionRepository;
+            _sessionRepository = sessionRepository;
         }
 
         [HttpGet]
@@ -297,7 +300,7 @@ namespace E_Learning.Controllers
             try
             {
                 var course = _courseRepository.FindById(courseTag.CourseId);
-                var courseTags = course.CourseTags.ToList();
+                var courseTags = course.CourseTags;
 
                 if (action == "add")
                 {
@@ -343,7 +346,7 @@ namespace E_Learning.Controllers
             try
             {
                 var course = _courseRepository.FindById(section.Course.Id);
-                var courseSections = course.Sections.ToList();
+                var courseSections = course.Sections;
 
                 if (action == "add")
                 {
@@ -376,9 +379,25 @@ namespace E_Learning.Controllers
                     var sec = courseSections.SingleOrDefault(s => s.Id == section.Id);
                     sec.Name_EN = section.Name_EN;
                     sec.Slug_EN = new SlugHelper().GenerateSlug(section.Name_EN);
-                    sec.Order = section.Order;
                     sec.UpdatedAt = DateTime.Now;
                     sec.UpdatedBy = section.UpdatedBy;
+
+                    if(sec.Order != section.Order)
+                    {
+                        var oldOrder = sec.Order;
+
+                        // Previous
+                        var oldSec = courseSections.SingleOrDefault(s => s.Order == section.Order);
+                        if (oldSec != null)
+                        {
+                            oldSec.Order = oldOrder;
+                            var updatedOldSection = _sectionRepository.Update(oldSec);
+                        }
+
+                        // New
+                        sec.Order = section.Order;
+
+                    }
 
                     var updatedSection = _sectionRepository.Update(sec);
                 }
@@ -399,6 +418,54 @@ namespace E_Learning.Controllers
         }
 
 
+        /////// Sessions
+        
+        [AllowAnonymous]
+        [HttpPost("manage-session")]
+        public IActionResult CreateSession([FromBody] Session session, [FromQuery] string action)
+        {
+            var errorMessages = new List<string>();
+
+            try
+            {
+                var section = _sectionRepository.FindById(session.Section.Id);
+
+                if(action == "add")
+                {
+                    var newSession = new Session()
+                    {
+                        Section = section,
+                        Title_EN = session.Title_EN,
+                        Slug_EN = new SlugHelper().GenerateSlug(session.Title_EN),
+                        Order = session.Order,
+                        Duration = session.Duration,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        CreatedBy = session.CreatedBy,
+                        UpdatedBy = session.UpdatedBy
+                    };
+
+                    _sessionRepository.Create(newSession);
+                }
+
+                var course = _courseRepository.FindById(session.Section.Course.Id);
+
+                var response = GenerateCourseResponse(course);
+
+                return Ok(new { updatedCourse = response });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+        
+
+
+
+
+
         ////////////////////////////////////////////////////
         private object GenerateCourseResponse(Course course)
         {
@@ -413,6 +480,24 @@ namespace E_Learning.Controllers
 
             foreach (var courseSection in course.Sections)
             {
+                var sessions = new List<Session>();
+
+                foreach(var sectionSession in courseSection.Sessions)
+                {
+                    sessions.Add(new Session()
+                    {
+                        Id = sectionSession.Id,
+                        Title_EN = sectionSession.Title_EN,
+                        Slug_EN = sectionSession.Slug_EN,
+                        Duration = sectionSession.Duration,
+                        Order = sectionSession.Order,
+                        CreatedAt = sectionSession.CreatedAt,
+                        CreatedBy = sectionSession.CreatedBy,
+                        UpdatedAt = sectionSession.UpdatedAt,
+                        UpdatedBy = sectionSession.UpdatedBy
+                    });
+                }
+
                 sections.Add(new Section() {
                     Id = courseSection.Id,
                     Name_EN = courseSection.Name_EN,
@@ -424,9 +509,10 @@ namespace E_Learning.Controllers
                     UpdatedBy = courseSection.UpdatedBy,
                     DeletedAt= courseSection.DeletedAt,
                     DeletedBy = courseSection.DeletedBy,
-                    Sessions = courseSection.Sessions
+                    Sessions = sessions.OrderBy(s => s.Order).ToList()
                 });
             }
+
 
             var response = new
             {
@@ -451,7 +537,7 @@ namespace E_Learning.Controllers
                 course.UpdatedAt,
                 course.UpdatedBy,
                 tags,
-                sections
+                sections = sections.OrderBy(s => s.Order)
             };
 
             return response;

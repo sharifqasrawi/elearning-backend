@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ namespace E_Learning.Models
         public int Order { get; set; }
         public string Name_EN { get; set; }
         public string Slug_EN { get; set; }
+
+        //[JsonIgnore]
         public Course Course { get; set; }
 
         public DateTime CreatedAt { get; set; }
@@ -20,6 +23,6 @@ namespace E_Learning.Models
         public DateTime? DeletedAt { get; set; }
         public string DeletedBy { get; set; }
 
-        public virtual IEnumerable<Session> Sessions { get; set; }
+        public IList<Session> Sessions { get; set; }
     }
 }

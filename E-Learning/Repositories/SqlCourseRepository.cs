@@ -40,6 +40,8 @@ namespace E_Learning.Repositories
             var course = dBContext.Courses
                                   .Include("Category")
                                   .Include("Sections")
+                                  .Include("Sections.Sessions")
+                                  //   .Include("Sections.Course")
                                   .Include("CourseTags")
                                   .Include("CourseTags.Tag")
                                   .SingleOrDefault(c => c.Id == id);

@@ -12,6 +12,6 @@ namespace E_Learning.Models
         public string Path { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public IEnumerable<UploadedFile> UploadedFiles { get; set; }
+        public IList<UploadedFile> UploadedFiles { get; set; }
     }
 }
