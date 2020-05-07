@@ -8,7 +8,7 @@ namespace E_Learning.Repositories
 {
     public interface ICategoryRepository
     {
-        IEnumerable<Category> GetCategories();
+        IList<Category> GetCategories();
         Category GetCategory(int id);
 
         Category Create(Category category);

@@ -13,5 +13,6 @@ namespace E_Learning.Repositories
         Section Update(Section sectionChanges);
         Section Delete(long id);
         Section FindById(long id);
+        IList<Section> GetSectionsByCourseId(long id);
     }
 }

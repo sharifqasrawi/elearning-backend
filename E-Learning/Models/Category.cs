@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -21,6 +22,9 @@ namespace E_Learning.Models
         public string UpdatedBy { get; set; }
         public DateTime? DeletedAt { get; set; }
         public string DeletedBy { get; set; }
+
+        [JsonIgnore]
+        public IList<Course> Courses { get; set; }
 
     }
 }

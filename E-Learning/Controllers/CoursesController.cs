@@ -37,14 +37,16 @@ namespace E_Learning.Controllers
             _sessionRepository = sessionRepository;
         }
 
+        [AllowAnonymous]
         [HttpGet]
-        public IActionResult GetCourses()
+        public IActionResult GetCourses([FromQuery] int? categoryId)
         {
             var errorMessages = new List<string>();
             try
             {
                 var courses = _courseRepository.GetCourses()
-                                                .Where(c => c.DeletedAt == null)
+                                                .Where(c => c.DeletedAt == null 
+                                                            && (c.Category.Id == categoryId || categoryId == null))
                                                 .OrderBy(c => c.Title_EN)
                                                 .ThenBy(c => c.Category)
                                                 .ThenBy(c => c.CreatedAt);
@@ -338,90 +340,91 @@ namespace E_Learning.Controllers
 
         ////// Sections //////
 
-        [AllowAnonymous]
-        [HttpPost("manage-section")]
-        public IActionResult CreateSection([FromBody] Section section, [FromQuery] string action)
-        {
-            var errorMessages = new List<string>();
-            try
-            {
-                var course = _courseRepository.FindById(section.Course.Id);
-                var courseSections = course.Sections;
+        //[AllowAnonymous]
+        //[HttpPost("manage-section")]
+        //public IActionResult CreateSection([FromBody] Section section, [FromQuery] string action)
+        //{
+        //    var errorMessages = new List<string>();
+        //    try
+        //    {
+        //        var course = _courseRepository.FindById(section.Course.Id);
+        //        var courseSections = course.Sections;
 
-                if (action == "add")
-                {
-                    var newSection = new Section()
-                    {
-                        Course = course,
-                        Name_EN = section.Name_EN,
-                        Slug_EN = new SlugHelper().GenerateSlug(section.Name_EN),
-                        Order = section.Order,
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now,
-                        CreatedBy = section.CreatedBy,
-                        UpdatedBy = section.UpdatedBy,
-                        DeletedAt = null,
-                        DeletedBy = null
-                    };
+        //        if (action == "add")
+        //        {
+        //            var newSection = new Section()
+        //            {
+        //                Course = course,
+        //                Name_EN = section.Name_EN,
+        //                Slug_EN = new SlugHelper().GenerateSlug(section.Name_EN),
+        //                Order = section.Order,
+        //                CreatedAt = DateTime.Now,
+        //                UpdatedAt = DateTime.Now,
+        //                CreatedBy = section.CreatedBy,
+        //                UpdatedBy = section.UpdatedBy,
+        //                DeletedAt = null,
+        //                DeletedBy = null
+        //            };
 
-                    //var createdSection = _sectionRepository.Create(newSection);
+        //            var createdSection = _sectionRepository.Create(newSection);
 
-                    courseSections.Add(newSection);
-                }
-                else if(action == "remove")
-                {
-                    var sec = courseSections.SingleOrDefault(s=> s.Id == section.Id);
-                    _sectionRepository.Delete(sec.Id);
-                    courseSections.Remove(sec);
-                }
-                else if(action == "edit")
-                {
-                    var sec = courseSections.SingleOrDefault(s => s.Id == section.Id);
-                    sec.Name_EN = section.Name_EN;
-                    sec.Slug_EN = new SlugHelper().GenerateSlug(section.Name_EN);
-                    sec.UpdatedAt = DateTime.Now;
-                    sec.UpdatedBy = section.UpdatedBy;
+        //            //courseSections.Add(newSection);
+        //        }
+        //        else if(action == "remove")
+        //        {
+        //            var sec = courseSections.SingleOrDefault(s=> s.Id == section.Id);
+        //            _sectionRepository.Delete(sec.Id);
+        //            //courseSections.Remove(sec);
+        //        }
+        //        else if(action == "edit")
+        //        {
+        //            var sec = courseSections.SingleOrDefault(s => s.Id == section.Id);
+        //            sec.Name_EN = section.Name_EN;
+        //            sec.Slug_EN = new SlugHelper().GenerateSlug(section.Name_EN);
+        //            sec.UpdatedAt = DateTime.Now;
+        //            sec.UpdatedBy = section.UpdatedBy;
 
-                    if(sec.Order != section.Order)
-                    {
-                        var oldOrder = sec.Order;
+        //            if(sec.Order != section.Order)
+        //            {
+        //                var oldOrder = sec.Order;
 
-                        // Previous
-                        var oldSec = courseSections.SingleOrDefault(s => s.Order == section.Order);
-                        if (oldSec != null)
-                        {
-                            oldSec.Order = oldOrder;
-                            var updatedOldSection = _sectionRepository.Update(oldSec);
-                        }
+        //                // Previous
+        //                var oldSec = courseSections.SingleOrDefault(s => s.Order == section.Order);
+        //                if (oldSec != null)
+        //                {
+        //                    oldSec.Order = oldOrder;
+        //                    var updatedOldSection = _sectionRepository.Update(oldSec);
+        //                }
 
-                        // New
-                        sec.Order = section.Order;
+        //                // New
+        //                sec.Order = section.Order;
 
-                    }
+        //            }
 
-                    var updatedSection = _sectionRepository.Update(sec);
-                }
+        //            var updatedSection = _sectionRepository.Update(sec);
+        //        }
 
-                course.Sections = courseSections;
+        //        //course.Sections = courseSections;
 
-                var updatedCourse = _courseRepository.Update(course);
+        //        //var updatedCourse = _courseRepository.Update(course);
 
-                var response = GenerateCourseResponse(updatedCourse);
+        //        var courseRes = _courseRepository.FindById(section.Course.Id);
 
-                return Ok( new { updatedCourse = response });
-            }
-            catch (Exception ex)
-            {
-                errorMessages.Add(ex.Message);
-                return BadRequest(new { errors = errorMessages });
-            }
-        }
+        //        var response = GenerateCourseResponse(courseRes);
 
+        //        return Ok( new { updatedCourse = response });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        errorMessages.Add(ex.Message);
+        //        return BadRequest(new { errors = errorMessages });
+        //    }
+        //}
 
+         
         /////// Sessions
-        
-        [AllowAnonymous]
-        [HttpPost("manage-session")]
+
+        [HttpPost("edit-session")]
         public IActionResult CreateSession([FromBody] Session session, [FromQuery] string action)
         {
             var errorMessages = new List<string>();
@@ -430,7 +433,7 @@ namespace E_Learning.Controllers
             {
                 var section = _sectionRepository.FindById(session.Section.Id);
 
-                if(action == "add")
+                if (action == "add")
                 {
                     var newSession = new Session()
                     {
@@ -447,7 +450,34 @@ namespace E_Learning.Controllers
 
                     _sessionRepository.Create(newSession);
                 }
+                else if (action == "edit")
+                {
+                    var s = _sessionRepository.FindById(session.Id);
+                    s.Title_EN = session.Title_EN;
+                    s.Slug_EN = new SlugHelper().GenerateSlug(session.Title_EN);
+                    s.Duration = session.Duration;
+                    s.UpdatedAt = DateTime.Now;
+                    s.UpdatedBy = session.UpdatedBy;
 
+                    if (s.Order != session.Order)
+                    {
+                        var oldOrder = s.Order;
+
+                        // Previous
+                        var oldSession = section.Sessions.SingleOrDefault(s => s.Order == session.Order);
+                        if (oldSession != null)
+                        {
+                            oldSession.Order = oldOrder;
+                            var updatedOldSession = _sessionRepository.Update(oldSession);
+                        }
+
+                        // New
+                        s.Order = session.Order;
+
+                    }
+
+                    _sessionRepository.Update(s);
+                }
                 var course = _courseRepository.FindById(session.Section.Course.Id);
 
                 var response = GenerateCourseResponse(course);
@@ -460,10 +490,84 @@ namespace E_Learning.Controllers
                 return BadRequest(new { errors = errorMessages });
             }
         }
+
+
+        [HttpDelete("delete-session")]
+        public IActionResult DeleteSession( [FromQuery] long id)
+        {
+            var errorMessages = new List<string>();
+
+            try
+            {
+                var courseId = _sessionRepository.FindById(id).Section.Course.Id;
+                var deletedSession = _sessionRepository.Delete(id);
+
+                var course = _courseRepository.FindById(courseId);
+
+                var response = GenerateCourseResponse(course);
+
+                return Ok(new { updatedCourse = response });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+
+        [HttpPost("edit-session-content")]
+        public IActionResult EditSessionContent([FromBody] SessionContent sessionContent, [FromQuery] string action)
+        {
+            var errorMessages = new List<string>();
+            try
+            {
+                var session = _sessionRepository.FindById(sessionContent.Session.Id);
+
+                if(action == "add")
+                {
+                    var newContent = new SessionContent()
+                    {
+                        Session = session,
+                        Type = sessionContent.Type,
+                        Content = sessionContent.Content,
+                        Order = sessionContent.Order
+                    };
+
+                    
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+
+        ////////////////////////////////////////////////////
         
+        private object GenerateSessionResponse(Session session)
+        {
+            var response = new
+            {
+                session.Id,
+                session.Order,
+                session.Title_EN,
+                session.Slug_EN,
+                session.Duration,
+                session.CreatedAt,
+                session.CreatedBy,
+                session.UpdatedAt,
+                session.UpdatedBy,
+                sectionId = session.Section.Id,
+                courseId = session.Section.Course.Id
+            };
 
-
-
+            return response;
+        }
 
 
         ////////////////////////////////////////////////////
@@ -513,6 +617,18 @@ namespace E_Learning.Controllers
                 });
             }
 
+            //var likes = new List<Like>();
+            //foreach(var like in course.Likes)
+            //{
+            //    likes.Add(new Like()
+            //    {
+            //        Id = like.Id,
+            //        CourseId = like.CourseId,
+            //        UserId = like.UserId,
+            //        UserFullName = like.UserFullName,
+            //        LikeDateTime = like.LikeDateTime
+            //    });
+            //}
 
             var response = new
             {
@@ -537,7 +653,9 @@ namespace E_Learning.Controllers
                 course.UpdatedAt,
                 course.UpdatedBy,
                 tags,
-                sections = sections.OrderBy(s => s.Order)
+                sections = sections.OrderBy(s => s.Order),
+                course.Likes,
+                course.Comments
             };
 
             return response;

@@ -9,9 +9,12 @@ namespace E_Learning.Repositories
     public interface ISessionRepository
     {
         Session Create(Session session);
-        IEnumerable<Session> GetSessions();
+        IList<Session> GetSessions();
         Session Update(Session sessionChanges);
         Session Delete(long id);
         Session FindById(long id);
+
+        IList<Session> GetSessionsByCourseId(long courseId);
+        IList<Session> GetSessionsBySectionId(long sectionId);
     }
 }

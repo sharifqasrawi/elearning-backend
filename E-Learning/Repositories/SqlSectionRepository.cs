@@ -35,6 +35,15 @@ namespace E_Learning.Repositories
             return section;
         }
 
+        public IList<Section> GetSectionsByCourseId(long id)
+        {
+            var sections = dBContext.Sections
+                .Where(s => s.Course.Id == id)
+                .ToList();
+
+            return sections;
+        }
+
         public Section FindById(long id)
         {
             var section = dBContext.Sections

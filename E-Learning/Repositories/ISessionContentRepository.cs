@@ -9,7 +9,7 @@ namespace E_Learning.Repositories
     public interface ISessionContentRepository
     {
         SessionContent Create(SessionContent SessionContent);
-        IEnumerable<SessionContent> GetSessionContents();
+        IList<SessionContent> GetSessionContents(long sessionId);
         SessionContent Update(SessionContent sessionContentChanges);
         SessionContent Delete(long id);
         SessionContent FindById(long id);

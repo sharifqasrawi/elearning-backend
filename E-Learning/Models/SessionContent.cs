@@ -12,6 +12,7 @@ namespace E_Learning.Models
         public string Content { get; set; }
         public int Order { get; set; }
         public Session Session { get; set; }
+        public string Note { get; set; }
         public DateTime? DeletedAt { get; set; }
     }
 }

@@ -33,7 +33,7 @@ namespace E_Learning.Controllers
                 var categories = _categoryRepository.GetCategories()
                                                     .Where(c => c.DeletedAt == null);
 
-                return Ok(new { categories = categories });
+                return Ok(new { categories });
             }
             catch (Exception ex)
             {
@@ -72,7 +72,7 @@ namespace E_Learning.Controllers
                 if (category == null)
                     return NotFound();
 
-                return Ok(new { category = category });
+                return Ok(new { category });
             }
             catch (Exception ex)
             {
@@ -81,7 +81,6 @@ namespace E_Learning.Controllers
             }
         }
 
-        [AllowAnonymous]
         [HttpPost("new")]
         public IActionResult CreateCategory([FromBody] Category category)
         {
@@ -99,6 +98,7 @@ namespace E_Learning.Controllers
                 var newCategory = new Category()
                 {
                     Title_EN = category.Title_EN,
+                    ImagePath = category.ImagePath,
                     CreatedAt = DateTime.Now,
                     CreatedBy = category.CreatedBy,
                     Slug = slugHelper.GenerateSlug(category.Title_EN)
@@ -118,7 +118,6 @@ namespace E_Learning.Controllers
             }
         }
 
-        [AllowAnonymous]
         [HttpPut("update")]
         public IActionResult UpdateCategory([FromBody] Category category)
         {
@@ -132,13 +131,14 @@ namespace E_Learning.Controllers
                     return NotFound();
 
                 cat.Title_EN = category.Title_EN;
+                cat.ImagePath = category.ImagePath;
                 cat.Slug = new SlugHelper().GenerateSlug(category.Title_EN);
                 cat.UpdatedAt = DateTime.Now;
                 cat.UpdatedBy = category.UpdatedBy;
 
                var updatedCategory = _categoryRepository.Update(cat);
 
-                return Ok(new { category = updatedCategory });
+                return Ok(new { updatedCategory });
 
             }
             catch (Exception ex)

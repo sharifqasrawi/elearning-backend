@@ -40,18 +40,38 @@ namespace E_Learning.Repositories
         public Session FindById(long id)
         {
             var session = dBContext.Sessions
-                                   .Include("Section")
+                                   //.Include("Section")
+                                   //.Include("Section.Course")
                                    .Include("Contents")
                                    .SingleOrDefault(s => s.Id == id);
 
             return session;
         }
 
-        public IEnumerable<Session> GetSessions()
+        public IList<Session> GetSessions()
         {
             var sessions = dBContext.Sessions
                                    .Include("Section")
-                                   .Include("Contents");
+                                   .Include("Contents").ToList();
+
+            return sessions;
+        }
+
+        public IList<Session> GetSessionsByCourseId(long courseId)
+        {
+            var sessions = dBContext.Sessions
+                                .Where(s => s.Section.Course.Id == courseId)
+                                .ToList();
+
+            return sessions;
+        }
+
+        public IList<Session> GetSessionsBySectionId(long sectionId)
+        {
+            var sessions = dBContext.Sessions
+                              .Where(s => s.Section.Id == sectionId)
+                              .OrderBy(s => s.Order)
+                              .ToList();
 
             return sessions;
         }
@@ -62,6 +82,11 @@ namespace E_Learning.Repositories
             session.State = EntityState.Modified;
             dBContext.SaveChanges();
             return sessionChanges;
+        }
+
+        IList<Session> ISessionRepository.GetSessions()
+        {
+            throw new NotImplementedException();
         }
     }
 }

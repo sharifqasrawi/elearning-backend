@@ -1,4 +1,5 @@
 ﻿using E_Learning.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,9 +33,12 @@ namespace E_Learning.Repositories
             return category;
         }
 
-        public IEnumerable<Category> GetCategories()
+        public IList<Category> GetCategories()
         {
-            return dBContext.Categories.OrderBy(c => c.Title_EN);
+            return dBContext.Categories
+                .Include("Courses")
+                .OrderBy(c => c.Title_EN)
+                .ToList();
         }
 
         public Category GetCategory(int id)

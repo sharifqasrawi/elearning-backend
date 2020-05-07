@@ -45,10 +45,11 @@ namespace E_Learning.Repositories
             return sessionContent;
         }
 
-        public IEnumerable<SessionContent> GetSessionContents()
+        public IList<SessionContent> GetSessionContents(long sessionId)
         {
             var sessionContents = dBContext.SessionContents
-                                          .Include("Session");
+                                          .Where(s => s.Session.Id == sessionId)
+                                          .ToList();
 
             return sessionContents;
         }
