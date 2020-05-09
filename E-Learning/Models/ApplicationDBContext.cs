@@ -30,6 +30,7 @@ namespace E_Learning.Models
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Like> Likes { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -46,6 +47,12 @@ namespace E_Learning.Models
                 .HasOne(pt => pt.Tag)
                 .WithMany(t => t.CourseTags)
                 .HasForeignKey(pt => pt.TagId);
+
+
+            foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            {
+                foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+            }
 
             base.OnModelCreating(modelBuilder);
         }

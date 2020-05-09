@@ -1,4 +1,5 @@
 ﻿using E_Learning.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace E_Learning.Repositories
 
         public Comment FindById(long id)
         {
-            return dBContext.Comments.Find(id);
+            return dBContext.Comments.Include("Replies").SingleOrDefault(c => c.Id == id);
         }
 
         public IList<Comment> GetComments()
@@ -44,14 +45,15 @@ namespace E_Learning.Repositories
         public IList<Comment> GetCommentsByCourseId(long courseId)
         {
             return dBContext.Comments
-                .Where(c => c.CourseId == courseId)
+                .Include("Replies")
+                .Where(c => c.CourseId == courseId && c.CommentId == null)
                 .OrderBy(c => c.CommentDateTime).ToList();
         }
 
         public Comment Update(Comment commentChanges)
         {
             var comment = dBContext.Comments.Attach(commentChanges);
-            comment.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            comment.State = EntityState.Modified;
             dBContext.SaveChanges();
             return commentChanges;
 

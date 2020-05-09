@@ -28,8 +28,7 @@ namespace E_Learning.Controllers
             _userManager = userManager;
         }
 
-        [AllowAnonymous]
-        [HttpPost("create-comment")]
+        [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] Comment comment)
         {
             var errorMessages = new List<string>();
@@ -42,10 +41,14 @@ namespace E_Learning.Controllers
                 {
                     User = user,
                     UserId = user.Id,
+                    UserFullName = $"{user.FirstName} {user.LastName}",
+                    UserGender = user.Gender,
                     Course = course,
                     CourseId = course.Id,
                     Text = comment.Text,
-                    CommentDateTime = DateTime.Now
+                    CommentId = comment.CommentId ?? null,
+                    CommentDateTime = DateTime.Now,
+                    Replies = new List<Comment>()
                 };
 
                 var createdComment = _commentRepository.Create(newComment);
@@ -53,6 +56,72 @@ namespace E_Learning.Controllers
                 return Ok(new { createdComment });
             }
             catch(Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult GetCommentsByCourseId([FromQuery] long courseId)
+        {
+            var errorMessages = new List<string>();
+            try
+            {
+               
+                var comments = _commentRepository.GetCommentsByCourseId(courseId)
+                        .OrderByDescending(c => c.CommentDateTime)
+                        .ToList();
+
+                return Ok(new { comments });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteComment([FromQuery] long id)
+        {
+            var errorMessages = new List<string>();
+            try
+            {
+                var comment = _commentRepository.FindById(id);
+                if (comment.Replies.Count > 0)
+                {
+                    foreach (var reply in comment.Replies.ToList())
+                    {
+                        _commentRepository.Delete(reply.Id);
+                    }
+                }
+
+                var deletedComment = _commentRepository.Delete(id);
+
+                return Ok(new { deletedComment });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+        [HttpPut]
+        public IActionResult UpdateComment([FromBody] Comment comment)
+        {
+            var errorMessages = new List<string>();
+            try
+            {
+                var commentToUpdate = _commentRepository.FindById(comment.Id);
+                commentToUpdate.Text = comment.Text;
+                var updatedComment = _commentRepository.Update(commentToUpdate);
+
+                return Ok(new { updatedComment  });
+            }
+            catch (Exception ex)
             {
                 errorMessages.Add(ex.Message);
                 return BadRequest(new { errors = errorMessages });

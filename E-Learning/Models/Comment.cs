@@ -17,8 +17,15 @@ namespace E_Learning.Models
         [JsonIgnore]
         public ApplicationUser User { get; set; }
         public string UserId { get; set; }
+        public string UserFullName { get; set; }
+        public string UserGender { get; set; }
+
         public string Text { get; set; }
         public DateTime? CommentDateTime { get; set; }
+
+        public List<Comment> Replies { get; set; }
+
+        public long? CommentId { get; set; }
 
     }
 }

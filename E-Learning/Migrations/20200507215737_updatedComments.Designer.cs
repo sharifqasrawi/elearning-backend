@@ -4,14 +4,16 @@ using E_Learning.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace E_Learning.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20200507215737_updatedComments")]
+    partial class updatedComments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -157,9 +159,6 @@ namespace E_Learning.Migrations
                     b.Property<DateTime?>("CommentDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<long?>("CommentId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("CourseId")
                         .HasColumnType("bigint");
 
@@ -169,15 +168,10 @@ namespace E_Learning.Migrations
                     b.Property<string>("UserFullName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserGender")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CommentId");
 
                     b.HasIndex("CourseId");
 
@@ -381,30 +375,6 @@ namespace E_Learning.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Messages");
-                });
-
-            modelBuilder.Entity("E_Learning.Models.Notification", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime?>("DateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Info")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("IsSeen")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Text")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("E_Learning.Models.Section", b =>
@@ -713,29 +683,22 @@ namespace E_Learning.Migrations
 
             modelBuilder.Entity("E_Learning.Models.Comment", b =>
                 {
-                    b.HasOne("E_Learning.Models.Comment", null)
-                        .WithMany("Replies")
-                        .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("E_Learning.Models.Course", "Course")
                         .WithMany("Comments")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("E_Learning.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("E_Learning.Models.Course", b =>
                 {
                     b.HasOne("E_Learning.Models.Category", "Category")
                         .WithMany("Courses")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CategoryId");
                 });
 
             modelBuilder.Entity("E_Learning.Models.CourseTag", b =>
@@ -743,13 +706,13 @@ namespace E_Learning.Migrations
                     b.HasOne("E_Learning.Models.Course", "Course")
                         .WithMany("CourseTags")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("E_Learning.Models.Tag", "Tag")
                         .WithMany("CourseTags")
                         .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -758,53 +721,47 @@ namespace E_Learning.Migrations
                     b.HasOne("E_Learning.Models.Course", "Course")
                         .WithMany("Likes")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("E_Learning.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("E_Learning.Models.Message", b =>
                 {
                     b.HasOne("E_Learning.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("E_Learning.Models.Section", b =>
                 {
                     b.HasOne("E_Learning.Models.Course", "Course")
                         .WithMany("Sections")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CourseId");
                 });
 
             modelBuilder.Entity("E_Learning.Models.Session", b =>
                 {
                     b.HasOne("E_Learning.Models.Section", "Section")
                         .WithMany("Sessions")
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("SectionId");
                 });
 
             modelBuilder.Entity("E_Learning.Models.SessionContent", b =>
                 {
                     b.HasOne("E_Learning.Models.Session", "Session")
                         .WithMany("Contents")
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("SessionId");
                 });
 
             modelBuilder.Entity("E_Learning.Models.UploadedFile", b =>
                 {
                     b.HasOne("E_Learning.Models.Directory", "UploadDirectory")
                         .WithMany("UploadedFiles")
-                        .HasForeignKey("UploadDirectoryId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UploadDirectoryId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
