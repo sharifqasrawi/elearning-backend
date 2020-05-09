@@ -27,5 +27,7 @@ namespace E_Learning.Models
 
         public long? CommentId { get; set; }
 
+        public List<Like> Likes { get; set; }
+
     }
 }

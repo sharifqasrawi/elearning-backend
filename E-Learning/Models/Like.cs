@@ -9,10 +9,15 @@ namespace E_Learning.Models
     public class Like
     {
         public long Id { get; set; }
-        public long CourseId { get; set; }
+        public long? CourseId { get; set; }
 
         [JsonIgnore]
         public Course Course { get; set; }
+
+        public long? CommentId { get; set; }
+
+        [JsonIgnore]
+        public Comment Comment { get; set; }
 
         [JsonIgnore]
         public ApplicationUser User { get; set; }

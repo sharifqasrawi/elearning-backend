@@ -34,7 +34,10 @@ namespace E_Learning.Repositories
 
         public Comment FindById(long id)
         {
-            return dBContext.Comments.Include("Replies").SingleOrDefault(c => c.Id == id);
+            return dBContext.Comments
+                .Include("Replies")
+                .Include("Likes")
+                .SingleOrDefault(c => c.Id == id);
         }
 
         public IList<Comment> GetComments()
@@ -46,6 +49,7 @@ namespace E_Learning.Repositories
         {
             return dBContext.Comments
                 .Include("Replies")
+                .Include("Likes")
                 .Where(c => c.CourseId == courseId && c.CommentId == null)
                 .OrderBy(c => c.CommentDateTime).ToList();
         }

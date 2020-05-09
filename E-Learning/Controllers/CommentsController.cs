@@ -17,14 +17,17 @@ namespace E_Learning.Controllers
     {
         private readonly ICommentRepository _commentRepository;
         private readonly ICourseRepository _courseRepository;
+        private readonly INotificationRepository _notificationRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public CommentsController(ICommentRepository commentRepository,
                                   ICourseRepository courseRepository,
+                                  INotificationRepository notificationRepository,
                                   UserManager<ApplicationUser> userManager)
         {
             _commentRepository = commentRepository;
             _courseRepository = courseRepository;
+            _notificationRepository = notificationRepository;
             _userManager = userManager;
         }
 
@@ -48,10 +51,37 @@ namespace E_Learning.Controllers
                     Text = comment.Text,
                     CommentId = comment.CommentId ?? null,
                     CommentDateTime = DateTime.Now,
-                    Replies = new List<Comment>()
+                    Replies = new List<Comment>(),
+                    Likes = new List<Like>()
                 };
 
                 var createdComment = _commentRepository.Create(newComment);
+
+                if (createdComment.CommentId == null)
+                {
+
+                    var newNotification = new Notification()
+                    {
+                        Type = "COMMENT",
+                        Text = $"{user.FirstName} {user.LastName} Commented on [ {course.Title_EN} ]",
+                        DateTime = DateTime.Now,
+                        IsSeen = false
+                    };
+
+                    var createdNotification = await _notificationRepository.Create(newNotification);
+                }
+                else
+                {
+                    var newNotification = new Notification()
+                    {
+                        Type = "COMMENT REPLY",
+                        Text = $"{user.FirstName} {user.LastName} Replied to a comment on [ {course.Title_EN} ]",
+                        DateTime = DateTime.Now,
+                        IsSeen = false
+                    };
+
+                    var createdNotification = await _notificationRepository.Create(newNotification);
+                }
 
                 return Ok(new { createdComment });
             }
@@ -120,6 +150,25 @@ namespace E_Learning.Controllers
                 var updatedComment = _commentRepository.Update(commentToUpdate);
 
                 return Ok(new { updatedComment  });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+
+        [HttpGet("count")]
+        public IActionResult CommentsCount()
+        {
+            var errorMessages = new List<string>();
+            try
+            {
+                var count = _commentRepository.GetComments().Count;
+           
+
+                return Ok(new { count });
             }
             catch (Exception ex)
             {

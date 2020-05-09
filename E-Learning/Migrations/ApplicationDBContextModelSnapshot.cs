@@ -324,7 +324,10 @@ namespace E_Learning.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long>("CourseId")
+                    b.Property<long?>("CommentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CourseId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("LikeDateTime")
@@ -337,6 +340,8 @@ namespace E_Learning.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
 
                     b.HasIndex("CourseId");
 
@@ -400,6 +405,9 @@ namespace E_Learning.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -755,11 +763,15 @@ namespace E_Learning.Migrations
 
             modelBuilder.Entity("E_Learning.Models.Like", b =>
                 {
+                    b.HasOne("E_Learning.Models.Comment", "Comment")
+                        .WithMany()
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("E_Learning.Models.Course", "Course")
                         .WithMany("Likes")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("E_Learning.Models.ApplicationUser", "User")
                         .WithMany()

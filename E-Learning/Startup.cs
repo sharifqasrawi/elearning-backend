@@ -106,6 +106,7 @@ namespace E_Learning
             services.AddScoped<ITagRepository, SqlTagRepository>();
             services.AddScoped<ILikeRepository, SqlLikeRepository>();
             services.AddScoped<ICommentRepository, SqlCommentRepository>();
+            services.AddScoped<INotificationRepository, SqlNotificationRepository>();
 
             services.AddMvc(options =>
             {

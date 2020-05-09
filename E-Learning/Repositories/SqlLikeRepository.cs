@@ -20,15 +20,26 @@ namespace E_Learning.Repositories
             return like;
         }
 
-        public Like Delete(long courseId ,string userId)
+        public Like Delete(long typeId, string userId, string type)
         {
-            var like = dBContext.Likes.SingleOrDefault(l => l.CourseId == courseId && l.UserId == userId);
-            if(like != null)
+            Like like = null;
+
+            if (type == "course")
+            {
+                like = dBContext.Likes.SingleOrDefault(l => l.CourseId == typeId && l.UserId == userId);
+            }
+            else if (type == "comment")
+            {
+                like = dBContext.Likes.SingleOrDefault(l => l.CommentId == typeId && l.UserId == userId);
+            }
+
+            if (like != null)
             {
                 dBContext.Likes.Remove(like);
                 dBContext.SaveChanges();
             }
             return like;
+
         }
 
         public Like FindById(long id)
