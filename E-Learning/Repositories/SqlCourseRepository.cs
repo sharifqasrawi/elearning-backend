@@ -41,15 +41,37 @@ namespace E_Learning.Repositories
                                   .Include("Category")
                                   .Include("Sections")
                                   .Include("Sections.Sessions")
-                                  //   .Include("Sections.Course")
                                   .Include("CourseTags")
                                   .Include("CourseTags.Tag")
                                   .Include("Likes")
+                                  .Include("Class")
+                                  .Include("Class.ClassUsers")
+                                  .Include("Class.ClassUsers.User")
                                   .SingleOrDefault(c => c.Id == id);
 
 
             return course;
         }
+
+        public Course FindByClassId(string id)
+        {
+            var course = dBContext.Courses
+                                  .Include("Category")
+                                  .Include("Sections")
+                                  .Include("Sections.Sessions")
+                                  .Include("Sections.Sessions.Contents")
+                                  .Include("CourseTags")
+                                  .Include("CourseTags.Tag")
+                                  .Include("Likes")
+                                  .Include("Class")
+                                  .Include("Class.ClassUsers")
+                                  .Include("Class.ClassUsers.User")
+                                  .SingleOrDefault(c => c.Class.Id == id);
+
+
+            return course;
+        }
+
 
         public Course FindBySlug(string slug)
         {
@@ -57,9 +79,13 @@ namespace E_Learning.Repositories
                                  .Include("Category")
                                  .Include("Sections")
                                  .Include("Sections.Sessions")
+                                 .Include("Sections.Sessions.Contents")
                                  .Include("CourseTags")
                                  .Include("CourseTags.Tag")
                                  .Include("Likes")
+                                 .Include("Class")
+                                 .Include("Class.ClassUsers")
+                                 .Include("Class.ClassUsers.User")
                                  .SingleOrDefault(c => c.Slug_EN == slug);
 
 
@@ -72,9 +98,13 @@ namespace E_Learning.Repositories
                                   .Include("Category")
                                   .Include("Sections")
                                   .Include("Sections.Sessions")
+                                  .Include("Sections.Sessions.Contents")
                                   .Include("CourseTags")
                                   .Include("CourseTags.Tag")
-                                  .Include("Likes");
+                                  .Include("Likes")
+                                  .Include("Class")
+                                  .Include("Class.ClassUsers")
+                                  .Include("Class.ClassUsers.User");
 
             return courses;
         }

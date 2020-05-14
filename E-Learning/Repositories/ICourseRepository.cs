@@ -13,6 +13,7 @@ namespace E_Learning.Repositories
         Course Update(Course courseChanges);
         Course Delete(long id);
         Course FindById(long id);
+        Course FindByClassId(string id);
         Course FindBySlug(string slug);
     }
 }

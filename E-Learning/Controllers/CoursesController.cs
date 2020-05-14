@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using E_Learning.Helpers;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -22,12 +23,14 @@ namespace E_Learning.Controllers
         private readonly ISessionRepository _sessionRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IClassRepository _classRepository;
         public CoursesController(ICourseRepository courseRepository,
                                  ITagRepository tagRepository,
                                  ISectionRepository sectionRepository,
                                  ISessionRepository sessionRepository,
                                  UserManager<ApplicationUser> userManager,
-                                 ICategoryRepository categoryRepository)
+                                 ICategoryRepository categoryRepository,
+                                 IClassRepository classRepository)
         {
             _courseRepository = courseRepository;
             _tagRepository = tagRepository;
@@ -35,6 +38,7 @@ namespace E_Learning.Controllers
             _categoryRepository = categoryRepository;
             _sectionRepository = sectionRepository;
             _sessionRepository = sessionRepository;
+            _classRepository = classRepository;
         }
 
         [AllowAnonymous]
@@ -55,7 +59,7 @@ namespace E_Learning.Controllers
 
                 foreach (var course in courses)
                 {
-                    var res = GenerateCourseResponse(course);
+                    var res = ResponseGenerator.GenerateCourseResponse(course);
                   
                     response.Add(res);
                 }
@@ -78,7 +82,7 @@ namespace E_Learning.Controllers
             {
                 var course = _courseRepository.FindById(id);
 
-                var response = GenerateCourseResponse(course);
+                var response = ResponseGenerator.GenerateCourseResponse(course);
 
                 return Ok(new { course = response });
             }
@@ -102,7 +106,7 @@ namespace E_Learning.Controllers
 
                 foreach (var course in courses)
                 {
-                    var res = GenerateCourseResponse(course);
+                    var res = ResponseGenerator.GenerateCourseResponse(course);
 
                     response.Add(res);
                 }
@@ -148,7 +152,8 @@ namespace E_Learning.Controllers
                     //Author = author,
                     Category = category,
                     Languages = course.Languages,
-                    Level = course.Level
+                    Level = course.Level,
+                    Class = null
                 };
 
                 if (newCourse.IsPublished.Value == true)
@@ -156,7 +161,7 @@ namespace E_Learning.Controllers
 
                 var createdCourse = _courseRepository.Create(newCourse);
 
-                var response = GenerateCourseResponse(createdCourse);
+                var response = ResponseGenerator.GenerateCourseResponse(createdCourse);
 
 
                 if (createdCourse != null)
@@ -171,7 +176,10 @@ namespace E_Learning.Controllers
             catch (Exception ex)
             {
                 errorMessages.Add(ex.Message);
-                return BadRequest(new { errors = errorMessages });
+                return BadRequest(new
+                {
+                    errors = errorMessages
+                });
             }
         }
 
@@ -209,7 +217,7 @@ namespace E_Learning.Controllers
 
                 var updatedCourse = _courseRepository.Update(newCourse);
 
-                var response = GenerateCourseResponse(updatedCourse);
+                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse);
 
 
                 if (updatedCourse != null)
@@ -248,7 +256,7 @@ namespace E_Learning.Controllers
                 }
                 var updatedCourse = _courseRepository.Update(crs);
 
-                var response = GenerateCourseResponse(updatedCourse);
+                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse);
 
                 return Ok(new { updatedCourse = response });
             }
@@ -282,7 +290,7 @@ namespace E_Learning.Controllers
                 }
                 var updatedCourse = _courseRepository.Update(crs);
 
-                var response = GenerateCourseResponse(updatedCourse);
+                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse);
 
                 return Ok(new { updatedCourse = response });
             }
@@ -327,7 +335,7 @@ namespace E_Learning.Controllers
 
                 var updatedCourse = _courseRepository.Update(course);
 
-                var response = GenerateCourseResponse(updatedCourse);
+                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse);
 
                 return Ok(new { updatedCourse = response });
             }
@@ -480,7 +488,7 @@ namespace E_Learning.Controllers
                 }
                 var course = _courseRepository.FindById(session.Section.Course.Id);
 
-                var response = GenerateCourseResponse(course);
+                var response = ResponseGenerator.GenerateCourseResponse(course);
 
                 return Ok(new { updatedCourse = response });
             }
@@ -504,7 +512,7 @@ namespace E_Learning.Controllers
 
                 var course = _courseRepository.FindById(courseId);
 
-                var response = GenerateCourseResponse(course);
+                var response = ResponseGenerator.GenerateCourseResponse(course);
 
                 return Ok(new { updatedCourse = response });
             }
@@ -549,116 +557,7 @@ namespace E_Learning.Controllers
 
         ////////////////////////////////////////////////////
         
-        private object GenerateSessionResponse(Session session)
-        {
-            var response = new
-            {
-                session.Id,
-                session.Order,
-                session.Title_EN,
-                session.Slug_EN,
-                session.Duration,
-                session.CreatedAt,
-                session.CreatedBy,
-                session.UpdatedAt,
-                session.UpdatedBy,
-                sectionId = session.Section.Id,
-                courseId = session.Section.Course.Id
-            };
-
-            return response;
-        }
-
-
-        ////////////////////////////////////////////////////
-        private object GenerateCourseResponse(Course course)
-        {
-            var tags = new List<Tag>();
-
-            foreach (var courseTag in course.CourseTags)
-            {
-                tags.Add(new Tag() { Id = courseTag.TagId, Name = courseTag.Tag.Name });
-            }
-
-            var sections = new List<Section>();
-
-            foreach (var courseSection in course.Sections)
-            {
-                var sessions = new List<Session>();
-
-                foreach(var sectionSession in courseSection.Sessions)
-                {
-                    sessions.Add(new Session()
-                    {
-                        Id = sectionSession.Id,
-                        Title_EN = sectionSession.Title_EN,
-                        Slug_EN = sectionSession.Slug_EN,
-                        Duration = sectionSession.Duration,
-                        Order = sectionSession.Order,
-                        CreatedAt = sectionSession.CreatedAt,
-                        CreatedBy = sectionSession.CreatedBy,
-                        UpdatedAt = sectionSession.UpdatedAt,
-                        UpdatedBy = sectionSession.UpdatedBy
-                    });
-                }
-
-                sections.Add(new Section() {
-                    Id = courseSection.Id,
-                    Name_EN = courseSection.Name_EN,
-                    Slug_EN = courseSection.Slug_EN,
-                    Order = courseSection.Order,
-                    CreatedAt = courseSection.CreatedAt,
-                    CreatedBy = courseSection.CreatedBy,
-                    UpdatedAt = courseSection.UpdatedAt,
-                    UpdatedBy = courseSection.UpdatedBy,
-                    DeletedAt= courseSection.DeletedAt,
-                    DeletedBy = courseSection.DeletedBy,
-                    Sessions = sessions.OrderBy(s => s.Order).ToList()
-                });
-            }
-
-            //var likes = new List<Like>();
-            //foreach(var like in course.Likes)
-            //{
-            //    likes.Add(new Like()
-            //    {
-            //        Id = like.Id,
-            //        CourseId = like.CourseId,
-            //        UserId = like.UserId,
-            //        UserFullName = like.UserFullName,
-            //        LikeDateTime = like.LikeDateTime
-            //    });
-            //}
-
-            var response = new
-            {
-                course.Id,
-                course.Title_EN,
-                course.Slug_EN,
-                course.Description_EN,
-                course.Prerequisites_EN,
-                course.Duration,
-                course.ImagePath,
-                course.IsFree,
-                course.Price,
-                course.IsPublished,
-                course.Languages,
-                course.Level,
-                course.Category,
-                course.CreatedAt,
-                course.CreatedBy,
-                course.DeletedAt,
-                course.DeletedBy,
-                course.PublishedAt,
-                course.UpdatedAt,
-                course.UpdatedBy,
-                tags,
-                sections = sections.OrderBy(s => s.Order),
-                course.Likes,
-                course.Comments
-            };
-
-            return response;
-        }
+       
+       
     }
 }

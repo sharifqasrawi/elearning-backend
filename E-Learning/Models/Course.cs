@@ -36,6 +36,7 @@ namespace E_Learning.Models
         public IList<CourseTag> CourseTags { get; set; }
         public IList<Like> Likes { get; set; }
         public IList<Comment> Comments { get; set; }
+        public Class Class { get; set; }
 
     }
 }

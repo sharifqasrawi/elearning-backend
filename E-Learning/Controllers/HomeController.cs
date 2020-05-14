@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using E_Learning.Helpers;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -70,7 +71,7 @@ namespace E_Learning.Controllers
 
                 foreach (var course in courses)
                 {
-                    var res = GenerateCourseResponse(course);
+                    var res = ResponseGenerator.GenerateCourseResponse(course);
 
                     response.Add(res);
                 }
@@ -93,7 +94,7 @@ namespace E_Learning.Controllers
             {
                 var session = _sessionRepository.FindById(sessionId);
 
-                return Ok(new { session });
+                return Ok(new {session = ResponseGenerator.GenerateSessionResponse(session) });
             }
             catch (Exception ex)
             {
@@ -102,87 +103,5 @@ namespace E_Learning.Controllers
             }
         }
 
-
-
-
-        ////////////////////////
-        private object GenerateCourseResponse(Course course)
-        {
-            var tags = new List<Tag>();
-
-            foreach (var courseTag in course.CourseTags)
-            {
-                tags.Add(new Tag() { Id = courseTag.TagId, Name = courseTag.Tag.Name });
-            }
-
-            var sections = new List<Section>();
-
-            foreach (var courseSection in course.Sections)
-            {
-                var sessions = new List<Session>();
-
-                foreach (var sectionSession in courseSection.Sessions)
-                {
-                    sessions.Add(new Session()
-                    {
-                        Id = sectionSession.Id,
-                        Title_EN = sectionSession.Title_EN,
-                        Slug_EN = sectionSession.Slug_EN,
-                        Duration = sectionSession.Duration,
-                        Order = sectionSession.Order,
-                        CreatedAt = sectionSession.CreatedAt,
-                        CreatedBy = sectionSession.CreatedBy,
-                        UpdatedAt = sectionSession.UpdatedAt,
-                        UpdatedBy = sectionSession.UpdatedBy
-                    });
-                }
-
-                sections.Add(new Section()
-                {
-                    Id = courseSection.Id,
-                    Name_EN = courseSection.Name_EN,
-                    Slug_EN = courseSection.Slug_EN,
-                    Order = courseSection.Order,
-                    CreatedAt = courseSection.CreatedAt,
-                    CreatedBy = courseSection.CreatedBy,
-                    UpdatedAt = courseSection.UpdatedAt,
-                    UpdatedBy = courseSection.UpdatedBy,
-                    DeletedAt = courseSection.DeletedAt,
-                    DeletedBy = courseSection.DeletedBy,
-                    Sessions = sessions.OrderBy(s => s.Order).ToList()
-                });
-            }
-
-
-            var response = new
-            {
-                course.Id,
-                course.Title_EN,
-                course.Slug_EN,
-                course.Description_EN,
-                course.Prerequisites_EN,
-                course.Duration,
-                course.ImagePath,
-                course.IsFree,
-                course.Price,
-                course.IsPublished,
-                course.Languages,
-                course.Level,
-                course.Category,
-                course.CreatedAt,
-                course.CreatedBy,
-                course.DeletedAt,
-                course.DeletedBy,
-                course.PublishedAt,
-                course.UpdatedAt,
-                course.UpdatedBy,
-                tags,
-                sections = sections.OrderBy(s => s.Order),
-                course.Likes,
-                course.Comments
-            };
-
-            return response;
-        }
     }
 }

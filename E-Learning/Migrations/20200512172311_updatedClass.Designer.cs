@@ -4,14 +4,16 @@ using E_Learning.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace E_Learning.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20200512172311_updatedClass")]
+    partial class updatedClass
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -177,9 +179,6 @@ namespace E_Learning.Migrations
 
                     b.Property<long?>("CurrentSessionId")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("CurrentSessionSlug")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("EnrollDateTime")
                         .HasColumnType("datetime2");
@@ -571,7 +570,7 @@ namespace E_Learning.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<long>("SessionId")
+                    b.Property<long?>("SessionId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Type")
@@ -775,7 +774,7 @@ namespace E_Learning.Migrations
 
             modelBuilder.Entity("E_Learning.Models.ClassUser", b =>
                 {
-                    b.HasOne("E_Learning.Models.Class", "Class")
+                    b.HasOne("E_Learning.Models.ApplicationUser", "User")
                         .WithMany("ClassUsers")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -786,7 +785,7 @@ namespace E_Learning.Migrations
                         .HasForeignKey("CurrentSessionId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("E_Learning.Models.ApplicationUser", "User")
+                    b.HasOne("E_Learning.Models.Class", "Class")
                         .WithMany("ClassUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -882,8 +881,7 @@ namespace E_Learning.Migrations
                     b.HasOne("E_Learning.Models.Session", "Session")
                         .WithMany("Contents")
                         .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("E_Learning.Models.UploadedFile", b =>

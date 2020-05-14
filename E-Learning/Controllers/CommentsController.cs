@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using E_Learning.Helpers;
+using E_Learning.Hubs;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace E_Learning.Controllers
 {
@@ -19,18 +22,22 @@ namespace E_Learning.Controllers
         private readonly ICourseRepository _courseRepository;
         private readonly INotificationRepository _notificationRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHubContext<SignalHub> _hubContext;
 
         public CommentsController(ICommentRepository commentRepository,
                                   ICourseRepository courseRepository,
                                   INotificationRepository notificationRepository,
-                                  UserManager<ApplicationUser> userManager)
+                                  UserManager<ApplicationUser> userManager,
+                                  IHubContext<SignalHub> hubContext)
         {
             _commentRepository = commentRepository;
             _courseRepository = courseRepository;
             _notificationRepository = notificationRepository;
             _userManager = userManager;
+            _hubContext = hubContext;
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] Comment comment)
         {
@@ -56,6 +63,11 @@ namespace E_Learning.Controllers
                 };
 
                 var createdComment = _commentRepository.Create(newComment);
+
+                if(createdComment != null)
+                {
+                    await _hubContext.Clients.All.SendAsync("SignalCommentReceived", ResponseGenerator.GenerateCommentResponse(createdComment));
+                }
 
                 if (createdComment.CommentId == null)
                 {
@@ -176,5 +188,6 @@ namespace E_Learning.Controllers
                 return BadRequest(new { errors = errorMessages });
             }
         }
+
     }
 }

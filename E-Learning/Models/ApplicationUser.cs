@@ -18,7 +18,9 @@ namespace E_Learning.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public bool IsActive { get; set; } 
+        public bool IsActive { get; set; }
+
+        public IList<ClassUser> ClassUsers { get; set; }
 
     }
 }

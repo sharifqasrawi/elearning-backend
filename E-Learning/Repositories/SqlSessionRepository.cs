@@ -40,8 +40,8 @@ namespace E_Learning.Repositories
         public Session FindById(long id)
         {
             var session = dBContext.Sessions
-                                   //.Include("Section")
-                                   //.Include("Section.Course")
+                                   .Include("Section")
+                                   .Include("Section.Course")
                                    .Include("Contents")
                                    .SingleOrDefault(s => s.Id == id);
 

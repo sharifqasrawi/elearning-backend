@@ -181,7 +181,7 @@ namespace E_Learning.Controllers
         {
             var errorMessages = new List<string>();
 
-            var session = _sessionRepository.FindById(sessionContent.Session.Id);
+            var session = _sessionRepository.FindById(sessionContent.SessionId);
             try
             {
                 var newSessionContent = new SessionContent()
@@ -226,7 +226,7 @@ namespace E_Learning.Controllers
                     var oldOrder = content.Order;
 
                     // Previous
-                    var oldSesContent = _sessioncontentRepository.GetSessionContents(content.Session.Id)
+                    var oldSesContent = _sessioncontentRepository.GetSessionContents(content.SessionId)
                         .SingleOrDefault(s => s.Order == sessionContent.Order);
 
                     if (oldSesContent != null)

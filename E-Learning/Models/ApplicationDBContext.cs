@@ -31,6 +31,7 @@ namespace E_Learning.Models
         public DbSet<Like> Likes { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Class> Classes { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,6 +48,22 @@ namespace E_Learning.Models
                 .HasOne(pt => pt.Tag)
                 .WithMany(t => t.CourseTags)
                 .HasForeignKey(pt => pt.TagId);
+
+
+
+            modelBuilder.Entity<ClassUser>()
+            .HasKey(t => new { t.ClassId, t.UserId });
+        
+            modelBuilder.Entity<ClassUser>()
+                .HasOne(pt => pt.Class)
+                .WithMany(p => p.ClassUsers)
+                .HasForeignKey(pt => pt.ClassId);
+
+            modelBuilder.Entity<ClassUser>()
+                .HasOne(pt => pt.User)
+                .WithMany(t => t.ClassUsers)
+                .HasForeignKey(pt => pt.UserId);
+
 
 
             foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))

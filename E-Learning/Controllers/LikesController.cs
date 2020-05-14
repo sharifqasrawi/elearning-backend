@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using E_Learning.Helpers;
+using E_Learning.Hubs;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace E_Learning.Controllers
 {
@@ -20,18 +23,21 @@ namespace E_Learning.Controllers
         private readonly ICourseRepository _courseRepository;
         private readonly INotificationRepository _notificationRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHubContext<SignalHub> _hubContext;
 
         public LikesController(ILikeRepository likeRepository,
                                ICourseRepository courseRepository,
                                ICommentRepository commentRepository,
                                INotificationRepository notificationRepository,
-                               UserManager<ApplicationUser> userManager)
+                               UserManager<ApplicationUser> userManager,
+                               IHubContext<SignalHub> hubContext)
         {
             _likeRepository = likeRepository;
             _courseRepository = courseRepository;
             _commentRepository = commentRepository;
             _notificationRepository = notificationRepository;
             _userManager = userManager;
+            _hubContext = hubContext;
         }
 
         [HttpPost("like-course")]
@@ -82,7 +88,7 @@ namespace E_Learning.Controllers
                     var createdNotification = await _notificationRepository.Create(newNotification);
                 }
 
-                return Ok(new { course });
+                return Ok(new { course = ResponseGenerator.GenerateCourseResponse(course) });
             }
             catch (Exception ex)
             {
@@ -140,7 +146,11 @@ namespace E_Learning.Controllers
                     var createdNotification = await _notificationRepository.Create(newNotification);
                 }
 
-                
+
+                if (comment != null)
+                {
+                    await _hubContext.Clients.All.SendAsync("SignalCommentLikeReceived", ResponseGenerator.GenerateCommentResponse(comment));
+                }
 
                 return Ok(new { comment });
             }
@@ -168,5 +178,8 @@ namespace E_Learning.Controllers
                 return BadRequest(new { errors = errorMessages });
             }
         }
+
+
+       
     }
 }

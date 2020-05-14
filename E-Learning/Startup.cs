@@ -20,6 +20,7 @@ using E_Learning.Repositories;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using E_Learning.Hubs;
 
 namespace E_Learning
 {
@@ -107,6 +108,7 @@ namespace E_Learning
             services.AddScoped<ILikeRepository, SqlLikeRepository>();
             services.AddScoped<ICommentRepository, SqlCommentRepository>();
             services.AddScoped<INotificationRepository, SqlNotificationRepository>();
+            services.AddScoped<IClassRepository, SqlClassRepository>();
 
             services.AddMvc(options =>
             {
@@ -116,6 +118,8 @@ namespace E_Learning
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
+
+            services.AddSignalR();
 
             services.AddSpaStaticFiles(configuration =>
             {
@@ -137,10 +141,16 @@ namespace E_Learning
             }
             // global cors policy
             app.UseCors(x => x
-                .AllowAnyOrigin()
                 .AllowAnyMethod()
-                .AllowAnyHeader());
+                .AllowAnyHeader()
+                .AllowCredentials()
+                .WithOrigins("http://localhost:4200"));
 
+            // Obsolete
+            //app.UseSignalR(routes =>
+            //{
+            //    routes.MapHub<SignalHub>("/signalHub");
+            //});
 
             app.UseStaticFiles();
 
@@ -162,6 +172,7 @@ namespace E_Learning
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<SignalHub>("/signalHub");
             });
 
             app.UseSpa(spa =>
