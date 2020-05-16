@@ -92,7 +92,7 @@ namespace E_Learning.Repositories
             return course;
         }
 
-        public IEnumerable<Course> GetCourses()
+        public IList<Course> GetCourses()
         {
             var courses = dBContext.Courses
                                   .Include("Category")
@@ -104,7 +104,8 @@ namespace E_Learning.Repositories
                                   .Include("Likes")
                                   .Include("Class")
                                   .Include("Class.ClassUsers")
-                                  .Include("Class.ClassUsers.User");
+                                  .Include("Class.ClassUsers.User")
+                                  .ToList();
 
             return courses;
         }

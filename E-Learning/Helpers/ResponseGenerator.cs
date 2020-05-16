@@ -93,6 +93,7 @@ namespace E_Learning.Helpers
                 };
             }
 
+
             var response = new
             {
                 course.Id,
@@ -148,6 +149,54 @@ namespace E_Learning.Helpers
 
         public static object GenerateCommentResponse(Comment comment)
         {
+            var replies = new List<object>();
+            foreach(var reply in comment.Replies)
+            {
+                var replyLikes = new List<object>();
+                if (reply.Likes != null)
+                {
+                    foreach (var like in reply.Likes)
+                    {
+                        replyLikes.Add(new
+                        {
+                            id = like.Id,
+                            commentId = like.CommentId,
+                            likeDateTime = like.LikeDateTime,
+                            userId = like.UserId,
+                            userFullName = like.UserFullName
+                        });
+                    }
+                }
+                replies.Add(new
+                {
+                    id = reply.Id,
+                    courseId = reply.CourseId,
+                    userId = reply.UserId,
+                    userFullName = reply.UserFullName,
+                    userGender = reply.UserGender,
+                    text = reply.Text,
+                    commentDateTime = reply.CommentDateTime,
+                    commentId = reply.CommentId,
+                    likes = replyLikes
+                });
+            }
+
+            var likes = new List<object>();
+            if (comment.Likes != null)
+            {
+                foreach (var like in comment.Likes)
+                {
+                    likes.Add(new
+                    {
+                        id = like.Id,
+                        commentId = like.CommentId,
+                        likeDateTime = like.LikeDateTime,
+                        userId = like.UserId,
+                        userFullName = like.UserFullName
+                    });
+                }
+            }
+
             var response = new
             {
                 id = comment.Id,
@@ -158,8 +207,8 @@ namespace E_Learning.Helpers
                 text = comment.Text,
                 commentDateTime = comment.CommentDateTime,
                 commentId = comment.CommentId,
-                replies = comment.Replies,
-                likes = comment.Likes
+                replies = replies,
+                likes = likes
             };
 
             return response;

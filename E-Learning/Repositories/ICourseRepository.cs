@@ -9,11 +9,12 @@ namespace E_Learning.Repositories
     public interface ICourseRepository
     {
         Course Create(Course course);
-        IEnumerable<Course> GetCourses();
+        IList<Course> GetCourses();
         Course Update(Course courseChanges);
         Course Delete(long id);
         Course FindById(long id);
         Course FindByClassId(string id);
         Course FindBySlug(string slug);
+
     }
 }

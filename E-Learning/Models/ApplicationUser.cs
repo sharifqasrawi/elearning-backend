@@ -21,6 +21,9 @@ namespace E_Learning.Models
         public bool IsActive { get; set; }
 
         public IList<ClassUser> ClassUsers { get; set; }
+        public IList<Favorite> Favorites { get; set; }
+        public IList<SavedSession> SavedSessions { get; set; }
+
 
     }
 }

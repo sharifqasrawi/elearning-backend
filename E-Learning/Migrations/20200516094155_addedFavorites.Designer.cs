@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_Learning.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20200513183455_updatedMember")]
-    partial class updatedMember
+    [Migration("20200516094155_addedFavorites")]
+    partial class addedFavorites
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -363,6 +363,28 @@ namespace E_Learning.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EmailMessages");
+                });
+
+            modelBuilder.Entity("E_Learning.Models.Favorite", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long?>("CourseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Favorites");
                 });
 
             modelBuilder.Entity("E_Learning.Models.Like", b =>
@@ -835,6 +857,19 @@ namespace E_Learning.Migrations
                         .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("E_Learning.Models.Favorite", b =>
+                {
+                    b.HasOne("E_Learning.Models.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("E_Learning.Models.ApplicationUser", "User")
+                        .WithMany("Favorites")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("E_Learning.Models.Like", b =>

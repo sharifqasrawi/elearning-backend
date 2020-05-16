@@ -95,7 +95,7 @@ namespace E_Learning.Controllers
                     var createdNotification = await _notificationRepository.Create(newNotification);
                 }
 
-                return Ok(new { createdComment });
+                return Ok(new { createdComment = ResponseGenerator.GenerateCommentResponse(createdComment) });
             }
             catch(Exception ex)
             {
@@ -112,9 +112,15 @@ namespace E_Learning.Controllers
             try
             {
                
-                var comments = _commentRepository.GetCommentsByCourseId(courseId)
+                var _comments = _commentRepository.GetCommentsByCourseId(courseId)
                         .OrderByDescending(c => c.CommentDateTime)
                         .ToList();
+
+                var comments = new List<object>();
+                foreach(var comment in _comments)
+                {
+                    comments.Add(ResponseGenerator.GenerateCommentResponse(comment));
+                }
 
                 return Ok(new { comments });
             }
@@ -126,7 +132,7 @@ namespace E_Learning.Controllers
         }
 
         [HttpDelete]
-        public IActionResult DeleteComment([FromQuery] long id)
+        public async Task<IActionResult> DeleteComment([FromQuery] long id)
         {
             var errorMessages = new List<string>();
             try
@@ -142,7 +148,12 @@ namespace E_Learning.Controllers
 
                 var deletedComment = _commentRepository.Delete(id);
 
-                return Ok(new { deletedComment });
+                if (deletedComment != null)
+                {
+                    await _hubContext.Clients.All.SendAsync("SignalCommentDeletedReceived", ResponseGenerator.GenerateCommentResponse(deletedComment));
+                }
+
+                return Ok(new { deletedComment = ResponseGenerator.GenerateCommentResponse(deletedComment) });
             }
             catch (Exception ex)
             {
@@ -152,7 +163,7 @@ namespace E_Learning.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateComment([FromBody] Comment comment)
+        public async Task<IActionResult> UpdateComment([FromBody] Comment comment)
         {
             var errorMessages = new List<string>();
             try
@@ -161,7 +172,12 @@ namespace E_Learning.Controllers
                 commentToUpdate.Text = comment.Text;
                 var updatedComment = _commentRepository.Update(commentToUpdate);
 
-                return Ok(new { updatedComment  });
+                if (updatedComment != null)
+                {
+                    await _hubContext.Clients.All.SendAsync("SignalCommentUpdatedReceived", ResponseGenerator.GenerateCommentResponse(updatedComment));
+                }
+
+                return Ok(new { updatedComment = ResponseGenerator.GenerateCommentResponse(updatedComment)  });
             }
             catch (Exception ex)
             {

@@ -146,13 +146,27 @@ namespace E_Learning.Controllers
                     var createdNotification = await _notificationRepository.Create(newNotification);
                 }
 
-
+         
                 if (comment != null)
                 {
-                    await _hubContext.Clients.All.SendAsync("SignalCommentLikeReceived", ResponseGenerator.GenerateCommentResponse(comment));
+                    var commentResponse = new Comment()
+                    {
+                        Id = comment.Id,
+                        Text = comment.Text,
+                        CommentId = comment.CommentId,
+                        UserId = comment.UserId,
+                        UserFullName = comment.UserFullName,
+                        UserGender = comment.UserGender,
+                        CourseId = comment.CourseId,
+                        CommentDateTime = comment.CommentDateTime,
+                        Replies = comment.Replies,
+                        Likes = comment.Likes
+                    };
+
+                    await _hubContext.Clients.All.SendAsync("SignalCommentLikeReceived", ResponseGenerator.GenerateCommentResponse(commentResponse));
                 }
 
-                return Ok(new { comment });
+                return Ok(new { comment = ResponseGenerator.GenerateCommentResponse(comment) });
             }
             catch (Exception ex)
             {

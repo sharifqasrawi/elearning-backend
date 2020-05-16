@@ -109,6 +109,9 @@ namespace E_Learning
             services.AddScoped<ICommentRepository, SqlCommentRepository>();
             services.AddScoped<INotificationRepository, SqlNotificationRepository>();
             services.AddScoped<IClassRepository, SqlClassRepository>();
+            services.AddScoped<IFavoriteRepository, SqlFavoriteRepository>();
+            services.AddScoped<ISavedSessionRepository, SqlSavedSessionsRepository>();
+
 
             services.AddMvc(options =>
             {

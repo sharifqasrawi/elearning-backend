@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_Learning.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20200512163717_createDB")]
-    partial class createDB
+    [Migration("20200516162306_addedSavedSessions2")]
+    partial class addedSavedSessions2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -151,7 +151,7 @@ namespace E_Learning.Migrations
 
             modelBuilder.Entity("E_Learning.Models.Class", b =>
                 {
-                    b.Property<string>("ClassId")
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<long?>("CourseId")
@@ -160,7 +160,7 @@ namespace E_Learning.Migrations
                     b.Property<string>("Name_EN")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ClassId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CourseId")
                         .IsUnique()
@@ -179,6 +179,9 @@ namespace E_Learning.Migrations
 
                     b.Property<long?>("CurrentSessionId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("CurrentSessionSlug")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("EnrollDateTime")
                         .HasColumnType("datetime2");
@@ -362,6 +365,28 @@ namespace E_Learning.Migrations
                     b.ToTable("EmailMessages");
                 });
 
+            modelBuilder.Entity("E_Learning.Models.Favorite", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long?>("CourseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Favorites");
+                });
+
             modelBuilder.Entity("E_Learning.Models.Like", b =>
                 {
                     b.Property<long>("Id")
@@ -458,6 +483,31 @@ namespace E_Learning.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("E_Learning.Models.SavedSession", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("SaveDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("SessionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SavedSessions");
                 });
 
             modelBuilder.Entity("E_Learning.Models.Section", b =>
@@ -570,7 +620,7 @@ namespace E_Learning.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<long?>("SessionId")
+                    b.Property<long>("SessionId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Type")
@@ -774,7 +824,7 @@ namespace E_Learning.Migrations
 
             modelBuilder.Entity("E_Learning.Models.ClassUser", b =>
                 {
-                    b.HasOne("E_Learning.Models.ApplicationUser", "User")
+                    b.HasOne("E_Learning.Models.Class", "Class")
                         .WithMany("ClassUsers")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -785,7 +835,7 @@ namespace E_Learning.Migrations
                         .HasForeignKey("CurrentSessionId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("E_Learning.Models.Class", "Class")
+                    b.HasOne("E_Learning.Models.ApplicationUser", "User")
                         .WithMany("ClassUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -834,6 +884,19 @@ namespace E_Learning.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("E_Learning.Models.Favorite", b =>
+                {
+                    b.HasOne("E_Learning.Models.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("E_Learning.Models.ApplicationUser", "User")
+                        .WithMany("Favorites")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("E_Learning.Models.Like", b =>
                 {
                     b.HasOne("E_Learning.Models.Comment", "Comment")
@@ -860,6 +923,19 @@ namespace E_Learning.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("E_Learning.Models.SavedSession", b =>
+                {
+                    b.HasOne("E_Learning.Models.Session", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("E_Learning.Models.ApplicationUser", "User")
+                        .WithMany("SavedSessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("E_Learning.Models.Section", b =>
                 {
                     b.HasOne("E_Learning.Models.Course", "Course")
@@ -881,7 +957,8 @@ namespace E_Learning.Migrations
                     b.HasOne("E_Learning.Models.Session", "Session")
                         .WithMany("Contents")
                         .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("E_Learning.Models.UploadedFile", b =>

@@ -32,6 +32,8 @@ namespace E_Learning.Models
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Class> Classes { get; set; }
+        public DbSet<Favorite> Favorites { get; set; }
+        public DbSet<SavedSession> SavedSessions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
