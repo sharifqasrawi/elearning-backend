@@ -52,6 +52,7 @@ namespace E_Learning.Repositories
         {
             var sessions = dBContext.Sessions
                                    .Include("Section")
+                                   .Include("Section.Course")
                                    .Include("Contents").ToList();
 
             return sessions;
@@ -82,11 +83,6 @@ namespace E_Learning.Repositories
             session.State = EntityState.Modified;
             dBContext.SaveChanges();
             return sessionChanges;
-        }
-
-        IList<Session> ISessionRepository.GetSessions()
-        {
-            throw new NotImplementedException();
         }
     }
 }

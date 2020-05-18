@@ -21,6 +21,7 @@ using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using E_Learning.Hubs;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace E_Learning
 {
@@ -101,6 +102,7 @@ namespace E_Learning
             services.AddScoped<IDirectoryRepository, SqlDirectoryRepository>();
             services.AddScoped<IUploadedFileRepository, SqlUploadedFileRepository>();
             services.AddScoped<ICourseRepository, SqlCourseRepository>();
+            services.AddScoped<ICourseRatingRepository, SqlCourseRatingRepository>();
             services.AddScoped<ISectionRepository, SqlSectionRepository>();
             services.AddScoped<ISessionRepository, SqlSessionRepository>();
             services.AddScoped<ISessionContentRepository, SqlSessionContentRepository>();
@@ -111,12 +113,13 @@ namespace E_Learning
             services.AddScoped<IClassRepository, SqlClassRepository>();
             services.AddScoped<IFavoriteRepository, SqlFavoriteRepository>();
             services.AddScoped<ISavedSessionRepository, SqlSavedSessionsRepository>();
+            services.AddScoped<IAppRatingRepository, SqlAppRatingRepository>();
 
 
-            services.AddMvc(options =>
-            {
-                options.Filters.Add(new CustomAuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()));
-            });
+            //services.AddMvc(options =>
+            //{
+            //    options.Filters.Add(new CustomAuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()));
+            //});
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
@@ -171,6 +174,12 @@ namespace E_Learning
             {
                 app.UseSpaStaticFiles();
             }
+
+            //app.UseForwardedHeaders(new ForwardedHeadersOptions
+            //{
+            //    ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+            //    ForwardedHeaders.XForwardedProto
+            //});
 
             app.UseEndpoints(endpoints =>
             {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using E_Learning.Models;
 using E_Learning.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -51,6 +52,55 @@ namespace E_Learning.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [HttpGet("sessions")]
+        public IActionResult GetSavedSessions2([FromQuery] string userId)
+        {
+            var errorMessages = new List<string>();
+            try
+            {
+                if (string.IsNullOrEmpty(userId))
+                {
+                    errorMessages.Add("Error fetching saved sessions");
+                    return BadRequest(new { errors = errorMessages });
+                }
+
+                var savedSessions = _savedSessionRepository.GetSavedSessionsByUserId(userId);
+                var allSessions = _sessionRepository.GetSessions();
+
+                var sessions = new List<object>();
+
+
+                foreach(var ss in savedSessions)
+                {
+                    foreach(var s in allSessions)
+                    {
+                        if(s.Id == ss.SessionId.Value)
+                        {
+                            sessions.Add(new {
+                                s.Id,
+                                s.Order,
+                                s.Title_EN,
+                                s.Duration,
+                                ss.SaveDateTime,
+                                ss.SessionUrl,
+                                courseTitle_EN = s.Section.Course.Title_EN
+                            });
+                        }
+                    }
+                }
+
+
+                return Ok(new { sessions });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> SaveSession([FromBody] SavedSession savedSession)
         {
@@ -78,7 +128,8 @@ namespace E_Learning.Controllers
                     SessionId = session.Id,
                     User = user,
                     UserId = user.Id,
-                    SaveDateTime = DateTime.Now
+                    SaveDateTime = DateTime.Now,
+                    SessionUrl = savedSession.SessionUrl
                 };
 
                 var createdSavedSession = _savedSessionRepository.Create(newSavedSession);

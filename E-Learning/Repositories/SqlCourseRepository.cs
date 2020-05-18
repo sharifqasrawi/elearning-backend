@@ -47,6 +47,7 @@ namespace E_Learning.Repositories
                                   .Include("Class")
                                   .Include("Class.ClassUsers")
                                   .Include("Class.ClassUsers.User")
+                                  .Include("Ratings")
                                   .SingleOrDefault(c => c.Id == id);
 
 
@@ -66,6 +67,7 @@ namespace E_Learning.Repositories
                                   .Include("Class")
                                   .Include("Class.ClassUsers")
                                   .Include("Class.ClassUsers.User")
+                                  .Include("Ratings")
                                   .SingleOrDefault(c => c.Class.Id == id);
 
 
@@ -86,6 +88,7 @@ namespace E_Learning.Repositories
                                  .Include("Class")
                                  .Include("Class.ClassUsers")
                                  .Include("Class.ClassUsers.User")
+                                 .Include("Ratings")
                                  .SingleOrDefault(c => c.Slug_EN == slug);
 
 
@@ -105,6 +108,7 @@ namespace E_Learning.Repositories
                                   .Include("Class")
                                   .Include("Class.ClassUsers")
                                   .Include("Class.ClassUsers.User")
+                                  .Include("Ratings")
                                   .ToList();
 
             return courses;

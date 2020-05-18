@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace E_Learning.Models
 {
-    public class SavedSession
+    public class CourseRating
     {
         public long Id { get; set; }
 
@@ -15,10 +15,10 @@ namespace E_Learning.Models
         public string UserId { get; set; }
 
         [JsonIgnore]
-        public Session Session { get; set; }
-        public long? SessionId { get; set; }
-        public string SessionUrl { get; set; }
-
-        public DateTime? SaveDateTime { get; set; }
+        public Course Course { get; set; }
+        public long CourseId { get; set; }
+        public float Value { get; set; }
+        public DateTime? RateDateTime { get; set; }
+        public DateTime? RateDateTimeUpdated { get; set; }
     }
 }

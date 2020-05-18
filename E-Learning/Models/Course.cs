@@ -39,5 +39,7 @@ namespace E_Learning.Models
         public Class Class { get; set; }
         //public IList<Favorite> Favorites { get; set; }
 
+        public IList<CourseRating> Ratings { get; set; }
+
     }
 }

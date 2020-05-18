@@ -159,7 +159,7 @@ namespace E_Learning.Controllers
                 errorMessages.Add("Email is required");
 
             if (string.IsNullOrEmpty(userDto.Password))
-                errorMessages.Add("Email is required");
+                errorMessages.Add("Password is required");
 
             if(errorMessages.Count > 0)
                 return BadRequest(new { errors = errorMessages });
@@ -192,9 +192,13 @@ namespace E_Learning.Controllers
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-            var role = "";
+            var role = "User";
             if (user.IsAdmin)
                 role = "Admin";
+            else if (user.IsAuthor)
+                role = "Author";
+            else
+                role = "User";
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

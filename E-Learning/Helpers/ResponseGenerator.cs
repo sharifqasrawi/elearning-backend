@@ -11,6 +11,7 @@ namespace E_Learning.Helpers
     {
         public static object GenerateCourseResponse(Course course)
         {
+            // Tags
             var tags = new List<Tag>();
 
             if (course.CourseTags != null)
@@ -21,6 +22,7 @@ namespace E_Learning.Helpers
                 }
             }
 
+            // Sections
             var sections = new List<Section>();
             if (course.Sections != null)
             {
@@ -63,6 +65,7 @@ namespace E_Learning.Helpers
                 }
             }
 
+            // Class
             var classDto = new ClassDto();
             if(course.Class != null)
             {
@@ -94,6 +97,20 @@ namespace E_Learning.Helpers
             }
 
 
+            // Ratings
+
+            var sumRatings = 0.0;
+            foreach(var rating in course.Ratings)
+            {
+                sumRatings += rating.Value;
+            }
+            var ratings = new
+            {
+                totalRating = course.Ratings.Count != 0 ? (sumRatings / course.Ratings.Count) : 0,
+                ratings = course.Ratings
+            };
+            
+
             var response = new
             {
                 course.Id,
@@ -120,7 +137,8 @@ namespace E_Learning.Helpers
                 sections = sections.OrderBy(s => s.Order),
                 course.Likes,
                 course.Comments,
-                cls = classDto
+                cls = classDto,
+                ratings
             };
 
             return response;

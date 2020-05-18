@@ -51,7 +51,7 @@ namespace E_Learning.Controllers
                     u.IsActive
                 })
                 .OrderBy(u => u.FirstName);
-            return Ok(new { users = users });
+            return Ok(new { users });
         }
 
 
@@ -79,7 +79,7 @@ namespace E_Learning.Controllers
                            || string.IsNullOrEmpty(searchKey))
                 .OrderBy(u => u.FirstName);
 
-            return Ok(new { users = users });
+            return Ok(new { users });
         }
 
 
@@ -189,6 +189,14 @@ namespace E_Learning.Controllers
                     await _roleManager.CreateAsync(roleAuthor);
                 }
 
+                bool roleUserExists = await _roleManager.RoleExistsAsync("User");
+                if (!roleUserExists)
+                {
+                    var roleUser = new IdentityRole();
+                    roleUser.Name = "User";
+                    await _roleManager.CreateAsync(roleUser);
+                }
+
                 var user = new ApplicationUser
                 {
                     Email = userDto.Email,
@@ -234,6 +242,20 @@ namespace E_Learning.Controllers
 
                             return BadRequest(new { errors = errorMessages });
                         }
+                    }
+                    else
+                    {
+                        var addToUserResult = await _userManager.AddToRoleAsync(user, "User");
+                        if (!addToUserResult.Succeeded)
+                        {
+                            foreach (var error in addToUserResult.Errors)
+                            {
+                                errorMessages.Add(error.Description);
+                            }
+
+                            return BadRequest(new { errors = errorMessages });
+                        }
+
                     }
 
 
@@ -296,6 +318,7 @@ namespace E_Learning.Controllers
 
                 if(result.Succeeded)
                 {
+
                     return Ok(new { userId = user.Id, isActive = user.IsActive });
                 }
 
@@ -360,6 +383,42 @@ namespace E_Learning.Controllers
 
                 if (result.Succeeded)
                 {
+                    if (user.IsAdmin)
+                    {
+                        var addToAdminResult = await _userManager.AddToRoleAsync(user, "Admin");
+                        if (!addToAdminResult.Succeeded)
+                        {
+                            foreach (var error in addToAdminResult.Errors)
+                            {
+                                errorMessages.Add(error.Description);
+                            }
+
+                            return BadRequest(new { errors = errorMessages });
+                        }
+                    }
+                    else
+                    {
+                        var removeFromAdminResult = await _userManager.RemoveFromRoleAsync(user, "Admin");
+                    }
+                    if (user.IsAuthor)
+                    {
+                        var addToAuthorResult = await _userManager.AddToRoleAsync(user, "Author");
+                        if (!addToAuthorResult.Succeeded)
+                        {
+                            foreach (var error in addToAuthorResult.Errors)
+                            {
+                                errorMessages.Add(error.Description);
+                            }
+
+                            return BadRequest(new { errors = errorMessages });
+                        }
+                    }
+                    else
+                    {
+                        var removeFromAuthorResult = await _userManager.RemoveFromRoleAsync(user, "Author");
+                    }
+
+
                     var response = new
                     {
                         Id = user.Id,
