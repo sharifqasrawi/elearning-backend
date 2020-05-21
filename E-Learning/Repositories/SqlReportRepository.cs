@@ -32,10 +32,16 @@ namespace E_Learning.Repositories
             return null;
         }
 
+        public Report FindByID(long id)
+        {
+            return dBContext.Reports.Find(id);
+        }
+
         public IList<Report> GetReports()
         {
             var reports = dBContext.Reports
                 .OrderByDescending(r => r.SeverityLevel)
+                .ThenBy(r => r.IsSeen)
                 .ThenByDescending(r => r.ReportDateTime)
                 .ToList();
 
@@ -47,6 +53,7 @@ namespace E_Learning.Repositories
             var reports = dBContext.Reports
                 .Where(r => r.Type.ToLower() == type.ToLower())
                 .OrderByDescending(r => r.SeverityLevel)
+                .ThenBy(r => r.IsSeen)
                 .ThenByDescending(r => r.ReportDateTime)
                 .ToList();
 
@@ -62,6 +69,14 @@ namespace E_Learning.Repositories
                 .ToList();
 
             return reports;
+        }
+
+        public Report Update(Report reportChanges)
+        {
+            var report = dBContext.Reports.Attach(reportChanges);
+            report.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            dBContext.SaveChanges();
+            return reportChanges;
         }
     }
 }

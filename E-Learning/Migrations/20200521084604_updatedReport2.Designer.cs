@@ -4,14 +4,16 @@ using E_Learning.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace E_Learning.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20200521084604_updatedReport2")]
+    partial class updatedReport2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -556,17 +558,8 @@ namespace E_Learning.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("IsReplySeen")
-                        .HasColumnType("bit");
-
                     b.Property<bool?>("IsSeen")
                         .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ReplyDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ReplyMessage")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("ReportDateTime")
                         .HasColumnType("datetime2");
