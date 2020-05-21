@@ -71,6 +71,7 @@ namespace E_Learning.Controllers
                 }
                 else
                 {
+                    rating.OldValue = rating.Value;
                     rating.Value = appRating.Value;
                     rating.RateDateTimeUpdated = DateTime.Now;
 
@@ -85,6 +86,7 @@ namespace E_Learning.Controllers
 
 
                 var appRatings = _appRatingRepository.GetAppRatings();
+
 
                 var ratings = new
                 {
@@ -105,17 +107,51 @@ namespace E_Learning.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult GetAppRatings()
+        public async Task<IActionResult> GetAppRatings([FromQuery] string userId)
         {
             var errorMessages = new List<string>();
             try
             {
+                var user = await _userManager.FindByIdAsync(userId);
                 var appRatings = _appRatingRepository.GetAppRatings();
 
+                var ratingsList = new List<object>();
+
+                if (user != null && user.IsAdmin && (await _userManager.IsInRoleAsync(user, "Admin")))
+                {
+                    foreach (var ar in appRatings)
+                    {
+                        ratingsList.Add(new
+                        {
+                            ar.Id,
+                            ar.UserId,
+                            userName = $"{ar.User.FirstName } {ar.User.LastName }",
+                            userGender = ar.User.Gender,
+                            userCountry = ar.User.Country,
+                            ar.Value,
+                            ar.OldValue,
+                            ar.RateDateTime,
+                            ar.RateDateTimeUpdated
+                        });
+                    }
+                }
+                else
+                {
+
+                    foreach (var ar in appRatings)
+                    {
+                        ratingsList.Add(new
+                        {
+                            ar.Id,
+                            ar.UserId,
+                            ar.Value,
+                        });
+                    }
+                }
                 var ratings = new
                 {
                     total = appRatings.Count > 0 ? appRatings.Sum(r => r.Value) / appRatings.Count : 0,
-                    ratings = appRatings
+                    ratings = ratingsList
                 };
 
                 return Ok(new { ratings });

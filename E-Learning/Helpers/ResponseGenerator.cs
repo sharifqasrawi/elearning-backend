@@ -9,7 +9,7 @@ namespace E_Learning.Helpers
 {
     public static class ResponseGenerator
     {
-        public static object GenerateCourseResponse(Course course)
+        public static object GenerateCourseResponse(Course course, bool? isAdmin)
         {
             // Tags
             var tags = new List<Tag>();
@@ -58,8 +58,6 @@ namespace E_Learning.Helpers
                         CreatedBy = courseSection.CreatedBy,
                         UpdatedAt = courseSection.UpdatedAt,
                         UpdatedBy = courseSection.UpdatedBy,
-                        DeletedAt = courseSection.DeletedAt,
-                        DeletedBy = courseSection.DeletedBy,
                         Sessions = sessions.OrderBy(s => s.Order).ToList()
                     });
                 }
@@ -74,17 +72,30 @@ namespace E_Learning.Helpers
                 {
                     foreach (var classUser in course.Class.ClassUsers)
                     {
-                        classUsers.Add(new Member()
+                        if(isAdmin.Value)
                         {
-                            Id = classUser.User.Id,
-                            FullName = $"{classUser.User.FirstName} {classUser.User.LastName}",
-                            Email = classUser.User.Email,
-                            Gender = classUser.User.Gender,
-                            Country = classUser.User.Country,
-                            EnrollDateTime = classUser.EnrollDateTime.Value,
-                            CurrentSessionId = classUser.CurrentSessionId,
-                            CurrentSessionSlug = classUser.CurrentSessionSlug
-                        });
+                            classUsers.Add(new Member()
+                            {
+                                Id = classUser.User.Id,
+                                FullName = $"{classUser.User.FirstName} {classUser.User.LastName}",
+                                Email = classUser.User.Email,
+                                Gender = classUser.User.Gender,
+                                Country = classUser.User.Country,
+                                EnrollDateTime = classUser.EnrollDateTime.Value,
+                                CurrentSessionId = classUser.CurrentSessionId,
+                                CurrentSessionSlug = classUser.CurrentSessionSlug
+                            });
+                        }
+                        else
+                        {
+                            classUsers.Add(new Member()
+                            {
+                                Id = classUser.User.Id,
+                                EnrollDateTime = classUser.EnrollDateTime.Value,
+                                CurrentSessionId = classUser.CurrentSessionId,
+                                CurrentSessionSlug = classUser.CurrentSessionSlug
+                            });
+                        }
                     }
                 }
                 classDto = new ClassDto()
@@ -100,16 +111,56 @@ namespace E_Learning.Helpers
             // Ratings
 
             var sumRatings = 0.0;
-            foreach(var rating in course.Ratings)
+            var ratingsList = new List<object>();
+            object ratings = null;
+            if (course.Ratings != null)
             {
-                sumRatings += rating.Value;
+                foreach (var rating in course.Ratings)
+                {
+                    sumRatings += rating.Value;
+                    if(isAdmin.Value)
+                    {
+                        ratingsList.Add(new
+                        {
+                            rating.Id,
+                            rating.UserId,
+                            userName = $"{rating.User.FirstName} {rating.User.LastName}",
+                            userGender = rating.User.Gender,
+                            userCountry = rating.User.Country,
+                            rating.CourseId,
+                            rating.Value,
+                            rating.OldValue,
+                            rating.RateDateTime,
+                            rating.RateDateTimeUpdated
+                        });
+                    }
+                    else
+                    {
+                        ratingsList.Add(new
+                        {
+                            rating.Id,
+                            rating.UserId,
+                            rating.CourseId,
+                            rating.Value,
+                        });
+                    }
+                   
+                }
+                ratings = new
+                {
+                    totalRating = course.Ratings.Count != 0 ? (sumRatings / course.Ratings.Count) : 0,
+                    ratings = ratingsList
+                };
             }
-            var ratings = new
+
+            var comments = new List<object>();
+            if(course.Comments != null)
             {
-                totalRating = course.Ratings.Count != 0 ? (sumRatings / course.Ratings.Count) : 0,
-                ratings = course.Ratings
-            };
-            
+                foreach(var comment in course.Comments.Where(c => c.CommentId == null).ToList())
+                {
+                    comments.Add(GenerateCommentResponse(comment));
+                }
+            }
 
             var response = new
             {
@@ -128,15 +179,15 @@ namespace E_Learning.Helpers
                 course.Category,
                 course.CreatedAt,
                 course.CreatedBy,
-                course.DeletedAt,
-                course.DeletedBy,
+                DeletedAt = isAdmin.Value ? course.DeletedAt : null,
+                DeletedBy = isAdmin.Value ? course.DeletedBy : null,
                 course.PublishedAt,
                 course.UpdatedAt,
                 course.UpdatedBy,
                 tags,
                 sections = sections.OrderBy(s => s.Order),
                 course.Likes,
-                course.Comments,
+                comments,
                 cls = classDto,
                 ratings
             };
@@ -230,6 +281,54 @@ namespace E_Learning.Helpers
             };
 
             return response;
+        }
+
+        public static object GenerateClassResponse(Class cls, bool? isAdmin)
+        {
+            if (cls != null)
+            {
+                var classUsers = new List<Member>();
+                if (cls.ClassUsers != null)
+                {
+                    foreach (var classUser in cls.ClassUsers)
+                    {
+                        if (isAdmin.Value)
+                        {
+                            classUsers.Add(new Member()
+                            {
+                                Id = classUser.User.Id,
+                                FullName = $"{classUser.User.FirstName} {classUser.User.LastName}",
+                                Email = classUser.User.Email,
+                                Gender = classUser.User.Gender,
+                                Country = classUser.User.Country,
+                                EnrollDateTime = classUser.EnrollDateTime.Value,
+                                CurrentSessionId = classUser.CurrentSessionId,
+                                CurrentSessionSlug = classUser.CurrentSessionSlug
+                            });
+                        }
+                        else
+                        {
+                            classUsers.Add(new Member()
+                            {
+                                Id = classUser.User.Id,
+                                EnrollDateTime = classUser.EnrollDateTime.Value,
+                                CurrentSessionId = classUser.CurrentSessionId,
+                                CurrentSessionSlug = classUser.CurrentSessionSlug
+                            });
+                        }
+                    }
+                }
+
+                var respose = new
+                {
+                    Id = cls.Id,
+                    Name_EN = cls.Name_EN,
+                    CourseId = cls.CourseId.Value,
+                    Members = classUsers
+                };
+                return respose;
+            }
+            return null;
         }
     }
 }

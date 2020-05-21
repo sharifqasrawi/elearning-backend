@@ -36,6 +36,7 @@ namespace E_Learning.Models
         public DbSet<SavedSession> SavedSessions { get; set; }
         public DbSet<CourseRating> CourseRatings { get; set; }
         public DbSet<AppRating> AppRatings { get; set; }
+        public DbSet<Report> Reports { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

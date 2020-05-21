@@ -77,6 +77,7 @@ namespace E_Learning.Controllers
                 }
                 else
                 {
+                    rating.OldValue = rating.Value;
                     rating.Value = courseRating.Value;
                     rating.RateDateTimeUpdated = DateTime.Now;
 
@@ -91,7 +92,7 @@ namespace E_Learning.Controllers
 
                 //await _hubContext.Clients.All.SendAsync("SignalCourseRateReceived", ResponseGenerator.GenerateCourseResponse(course));
 
-                return Ok(new { course = ResponseGenerator.GenerateCourseResponse(course) });
+                return Ok(new { course = ResponseGenerator.GenerateCourseResponse(course,false) });
             }
             catch (Exception ex)
             {

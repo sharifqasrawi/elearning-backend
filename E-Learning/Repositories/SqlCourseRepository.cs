@@ -44,10 +44,14 @@ namespace E_Learning.Repositories
                                   .Include("CourseTags")
                                   .Include("CourseTags.Tag")
                                   .Include("Likes")
+                                  .Include("Comments")
+                                  .Include("Comments.Replies")
+                                  .Include("Comments.Likes")
                                   .Include("Class")
                                   .Include("Class.ClassUsers")
                                   .Include("Class.ClassUsers.User")
                                   .Include("Ratings")
+                                  .Include("Ratings.User")
                                   .SingleOrDefault(c => c.Id == id);
 
 
@@ -64,10 +68,14 @@ namespace E_Learning.Repositories
                                   .Include("CourseTags")
                                   .Include("CourseTags.Tag")
                                   .Include("Likes")
+                                  .Include("Comments")
+                                  .Include("Comments.Replies")
+                                  .Include("Comments.Likes")
                                   .Include("Class")
                                   .Include("Class.ClassUsers")
                                   .Include("Class.ClassUsers.User")
                                   .Include("Ratings")
+                                  .Include("Ratings.User")
                                   .SingleOrDefault(c => c.Class.Id == id);
 
 
@@ -85,10 +93,14 @@ namespace E_Learning.Repositories
                                  .Include("CourseTags")
                                  .Include("CourseTags.Tag")
                                  .Include("Likes")
+                                 .Include("Comments")
+                                 .Include("Comments.Replies")
+                                 .Include("Comments.Likes")
                                  .Include("Class")
                                  .Include("Class.ClassUsers")
                                  .Include("Class.ClassUsers.User")
                                  .Include("Ratings")
+                                 .Include("Ratings.User")
                                  .SingleOrDefault(c => c.Slug_EN == slug);
 
 
@@ -105,10 +117,14 @@ namespace E_Learning.Repositories
                                   .Include("CourseTags")
                                   .Include("CourseTags.Tag")
                                   .Include("Likes")
+                                  .Include("Comments")
+                                  .Include("Comments.Replies")
+                                  .Include("Comments.Likes")
                                   .Include("Class")
                                   .Include("Class.ClassUsers")
                                   .Include("Class.ClassUsers.User")
                                   .Include("Ratings")
+                                  .Include("Ratings.User")
                                   .ToList();
 
             return courses;

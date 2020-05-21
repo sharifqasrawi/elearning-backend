@@ -144,7 +144,7 @@ namespace E_Learning.Controllers
                     {
                         if(fav.CourseId == course.Id)
                         {
-                            courses.Add(ResponseGenerator.GenerateCourseResponse(course));
+                            courses.Add(ResponseGenerator.GenerateCourseResponse(course,false));
                         }
                     }
                 }

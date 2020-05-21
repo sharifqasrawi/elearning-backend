@@ -113,7 +113,7 @@ namespace E_Learning.Controllers
                         {
                             var verificationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                            var confirmationLink = "http://localhost:4200/email-confirmation?userId=" + user.Id + "&token=" + verificationToken.ToString();
+                            var confirmationLink = "http:/localhost:44383/security/email-confirmation?userId=" + user.Id + "&token=" + verificationToken.ToString();
                             string To = user.Email;
                             string Subject = "Confirm your email";
                             string Body = "Please click on the link below to confirm your email: " + confirmationLink;
@@ -281,7 +281,7 @@ namespace E_Learning.Controllers
             var verificationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
 
-            var confirmationLink = "http://localhost:4200/security/email-confirmation?userId=" + user.Id + "&token=" + verificationToken.ToString();
+            var confirmationLink = "http:/localhost:44383/security/email-confirmation?userId=" + user.Id + "&token=" + verificationToken.ToString();
             string To = user.Email;
             string Subject = "Confirm your email";
             string Body = "Please click on the link below to confirm your email: " + confirmationLink;
@@ -308,7 +308,7 @@ namespace E_Learning.Controllers
             if(user != null && await _userManager.IsEmailConfirmedAsync(user))
             {
                 var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var resetPwdLink = "http://localhost:4200/security/reset-password?email=" + user.Email + "&token=" + resetToken.ToString();
+                var resetPwdLink = "http:/localhost:44383/security/reset-password?email=" + user.Email + "&token=" + resetToken.ToString();
                 string To = user.Email;
                 string Subject = "Reset Password";
                 string Body = "Please click on the link below to reset your password: " + resetPwdLink;

@@ -25,6 +25,7 @@ namespace E_Learning.Repositories
         {
             return dBContext.Classes
                 .Include("ClassUsers")
+                .Include("ClassUsers.User")
                 .Include("Course")
                 .Include("Course.Category")
                 .Include("Course.Sections")
@@ -40,6 +41,8 @@ namespace E_Learning.Repositories
         public IList<Class> GetClasses()
         {
             return dBContext.Classes
+                .Include("ClassUsers")
+                .Include("ClassUsers.User")
                 .Include("Course")
                 .Include("Course.Category")
                 .Include("Course.Sections")

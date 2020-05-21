@@ -1,4 +1,5 @@
 ﻿using E_Learning.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,13 +46,13 @@ namespace E_Learning.Repositories
 
         public IList<AppRating> GetAppRatings()
         {
-            return dBContext.AppRatings.ToList();
+            return dBContext.AppRatings.Include("User").ToList();
         }
 
         public AppRating Update(AppRating appRatingChanges)
         {
             var appRating = dBContext.AppRatings.Attach(appRatingChanges);
-            appRating.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            appRating.State = EntityState.Modified;
             dBContext.SaveChanges();
             return appRatingChanges;
         }

@@ -50,7 +50,7 @@ namespace E_Learning.Controllers
                         {
                             if (member.UserId == userId)
                             {
-                                courses.Add(ResponseGenerator.GenerateCourseResponse(course));
+                                courses.Add(ResponseGenerator.GenerateCourseResponse(course, false));
                             }
                         }
                     }

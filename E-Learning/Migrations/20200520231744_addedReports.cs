@@ -3,31 +3,29 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace E_Learning.Migrations
 {
-    public partial class addedSavedSessions : Migration
+    public partial class addedReports : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "SavedSession",
+                name: "Reports",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(nullable: true),
-                    SessionId = table.Column<long>(nullable: true),
-                    SaveDateTime = table.Column<DateTime>(nullable: true)
+                    UserFullName = table.Column<string>(nullable: true),
+                    Type = table.Column<string>(nullable: true),
+                    Severity = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    ReportDateTime = table.Column<DateTime>(nullable: true),
+                    IsSeen = table.Column<bool>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SavedSession", x => x.Id);
+                    table.PrimaryKey("PK_Reports", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SavedSession_Sessions_SessionId",
-                        column: x => x.SessionId,
-                        principalTable: "Sessions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_SavedSession_AspNetUsers_UserId",
+                        name: "FK_Reports_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -35,20 +33,15 @@ namespace E_Learning.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SavedSession_SessionId",
-                table: "SavedSession",
-                column: "SessionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SavedSession_UserId",
-                table: "SavedSession",
+                name: "IX_Reports_UserId",
+                table: "Reports",
                 column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SavedSession");
+                name: "Reports");
         }
     }
 }

@@ -22,6 +22,7 @@ using System.IO;
 using Microsoft.AspNetCore.Http;
 using E_Learning.Hubs;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Http.Connections;
 
 namespace E_Learning
 {
@@ -125,6 +126,15 @@ namespace E_Learning
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder => builder
+                .WithOrigins("http://localhost:4200")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
+            });
+
             services.AddSignalR();
 
             services.AddSpaStaticFiles(configuration =>
@@ -146,11 +156,7 @@ namespace E_Learning
                 app.UseHsts();
             }
             // global cors policy
-            app.UseCors(x => x
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials()
-                .WithOrigins("http://localhost:4200"));
+            app.UseCors("CorsPolicy");
 
             // Obsolete
             //app.UseSignalR(routes =>
@@ -184,7 +190,12 @@ namespace E_Learning
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<SignalHub>("/signalHub");
+                endpoints.MapHub<SignalHub>("/signalHub", options =>
+                {
+                    options.Transports =
+                        HttpTransportType.WebSockets |
+                        HttpTransportType.LongPolling;
+                });
             });
 
             app.UseSpa(spa =>

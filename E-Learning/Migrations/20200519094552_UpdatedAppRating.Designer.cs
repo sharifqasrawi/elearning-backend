@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_Learning.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20200517230709_updatedCourseRating")]
-    partial class updatedCourseRating
+    [Migration("20200519094552_UpdatedAppRating")]
+    partial class UpdatedAppRating
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,6 +20,35 @@ namespace E_Learning.Migrations
                 .HasAnnotation("ProductVersion", "3.1.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("E_Learning.Models.AppRating", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<float?>("OldValue")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime?>("RateDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RateDateTimeUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<float>("Value")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AppRatings");
+                });
 
             modelBuilder.Entity("E_Learning.Models.ApplicationUser", b =>
                 {
@@ -846,6 +875,14 @@ namespace E_Learning.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("E_Learning.Models.AppRating", b =>
+                {
+                    b.HasOne("E_Learning.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("E_Learning.Models.Class", b =>

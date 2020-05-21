@@ -71,7 +71,7 @@ namespace E_Learning.Controllers
 
                 foreach (var course in courses)
                 {
-                    var res = ResponseGenerator.GenerateCourseResponse(course);
+                    var res = ResponseGenerator.GenerateCourseResponse(course, false);
 
                     response.Add(res);
                 }

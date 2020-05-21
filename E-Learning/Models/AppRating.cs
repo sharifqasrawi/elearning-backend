@@ -15,6 +15,7 @@ namespace E_Learning.Models
         public string UserId { get; set; }
 
         public float Value { get; set; }
+        public float? OldValue { get; set; }
         public DateTime? RateDateTime { get; set; }
         public DateTime? RateDateTimeUpdated { get; set; }
     }

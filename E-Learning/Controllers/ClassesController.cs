@@ -21,7 +21,7 @@ namespace E_Learning.Controllers
         private readonly ISessionRepository _sessionRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly INotificationRepository _notificationRepository;
-        public ClassesController(IClassRepository classRepository, 
+        public ClassesController(IClassRepository classRepository,
                                  ICourseRepository courseRepository,
                                  ISessionRepository sessionRepository,
                                  UserManager<ApplicationUser> userManager,
@@ -78,7 +78,7 @@ namespace E_Learning.Controllers
                     return BadRequest(new { errors = errorMessages });
                 }
 
-                return Ok(new { course = ResponseGenerator.GenerateCourseResponse(course) });
+                return Ok(new { course = ResponseGenerator.GenerateCourseResponse(course, true) });
             }
             catch (Exception ex)
             {
@@ -89,12 +89,12 @@ namespace E_Learning.Controllers
 
         [AllowAnonymous]
         [HttpPost("enroll")]
-        public async Task<IActionResult> EnrollInClass([FromBody] ClassUser classUser, [FromQuery] string action)
+        public async Task<IActionResult> EnrollInClass([FromBody] ClassUser classUser, [FromQuery] string action, [FromQuery] string userId)
         {
             var errorMessages = new List<string>();
             try
             {
-                if(string.IsNullOrEmpty(classUser.ClassId) || classUser.UserId == null)
+                if (string.IsNullOrEmpty(classUser.ClassId) || classUser.UserId == null)
                 {
                     errorMessages.Add("Error joining class.");
                     return BadRequest(new { errors = errorMessages });
@@ -133,12 +133,12 @@ namespace E_Learning.Controllers
                 var updatedClass = _classRepository.Update(cls);
                 if (updatedClass != null)
                 {
-                    if(action == "enroll")
+                    if (action == "enroll")
                     {
                         await _notificationRepository.Create(new Notification()
                         {
-                            Type="ENROLLEMENT",
-                            Text=$"{member.FirstName} {member.LastName} enrolled in class [ {cls.Name_EN} ]",
+                            Type = "ENROLLEMENT",
+                            Text = $"{member.FirstName} {member.LastName} enrolled in class [ {cls.Name_EN} ]",
                             DateTime = DateTime.Now,
                             Info = null,
                             IsSeen = false,
@@ -157,9 +157,12 @@ namespace E_Learning.Controllers
                     }
                 }
 
-                var course = _courseRepository.FindByClassId(updatedClass.Id);
+                var user = await _userManager.FindByIdAsync(userId);
+                bool isAdmin = false;
+                if (user != null)
+                    isAdmin = user.IsAdmin && (await _userManager.IsInRoleAsync(user, "Admin"));
 
-                return Ok(new { course = ResponseGenerator.GenerateCourseResponse(course) });
+                return Ok(new { updatedClass = ResponseGenerator.GenerateClassResponse(cls, isAdmin) });
             }
             catch (Exception ex)
             {
@@ -210,6 +213,40 @@ namespace E_Learning.Controllers
                 var updatedClass = _classRepository.Update(cls);
 
                 return Ok(true);
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("non-members")]
+        public IActionResult GetNonMembers([FromQuery] string classId)
+        {
+            var errorMessages = new List<string>();
+            try
+            {
+                var cls = _classRepository.FindById(classId);
+                var clsMembers = cls.ClassUsers;
+                var allUsers = _userManager.Users;
+                var nonMembers = new List<object>();
+
+                foreach (var user in allUsers)
+                {
+                    var newMember = new
+                    {
+                        id = user.Id,
+                        fullName = $"{user.FirstName} {user.LastName}"
+                    };
+
+                    nonMembers.Add(newMember);
+
+                }
+
+                return Ok(new { nonMembers  });
+
             }
             catch (Exception ex)
             {

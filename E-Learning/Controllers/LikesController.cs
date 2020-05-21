@@ -48,7 +48,7 @@ namespace E_Learning.Controllers
             {
                 var course = _courseRepository.FindById(like.CourseId.Value);
                 var user = await _userManager.FindByIdAsync(like.UserId);
-
+                Like updatedLike = null;
                 if (action == "like")
                 {
                     var newLike = new Like()
@@ -61,7 +61,7 @@ namespace E_Learning.Controllers
                         LikeDateTime = DateTime.Now
                     };
 
-                    var createdLike = _likeRepository.Create(newLike);
+                    updatedLike = _likeRepository.Create(newLike);
 
                     var newNotification = new Notification()
                     {
@@ -75,7 +75,7 @@ namespace E_Learning.Controllers
                 }
                 else if (action == "unlike")
                 {
-                    var deletedLike = _likeRepository.Delete(like.CourseId.Value, like.UserId, "course");
+                    updatedLike = _likeRepository.Delete(like.CourseId.Value, like.UserId, "course");
 
                     var newNotification = new Notification()
                     {
@@ -88,7 +88,8 @@ namespace E_Learning.Controllers
                     var createdNotification = await _notificationRepository.Create(newNotification);
                 }
 
-                return Ok(new { course = ResponseGenerator.GenerateCourseResponse(course) });
+                //return Ok(new { course = ResponseGenerator.GenerateCourseResponse(course,false) });
+                return Ok(new { like = updatedLike , action }) ;
             }
             catch (Exception ex)
             {
@@ -106,6 +107,7 @@ namespace E_Learning.Controllers
             {
                 var comment = _commentRepository.FindById(like.CommentId.Value);
                 var user = await _userManager.FindByIdAsync(like.UserId);
+                Like updatedLike = null;
 
                 if (action == "like")
                 {
@@ -119,7 +121,7 @@ namespace E_Learning.Controllers
                         LikeDateTime = DateTime.Now
                     };
 
-                    var createdLike = _likeRepository.Create(newLike);
+                    updatedLike = _likeRepository.Create(newLike);
 
                     var newNotification = new Notification()
                     {
@@ -133,7 +135,7 @@ namespace E_Learning.Controllers
                 }
                 else if (action == "unlike")
                 {
-                    var deletedLike = _likeRepository.Delete(like.CommentId.Value, like.UserId, "comment");
+                    updatedLike = _likeRepository.Delete(like.CommentId.Value, like.UserId, "comment");
 
                     var newNotification = new Notification()
                     {
@@ -167,6 +169,7 @@ namespace E_Learning.Controllers
                 }
 
                 return Ok(new { comment = ResponseGenerator.GenerateCommentResponse(comment) });
+
             }
             catch (Exception ex)
             {

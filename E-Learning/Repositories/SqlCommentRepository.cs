@@ -58,6 +58,7 @@ namespace E_Learning.Repositories
                .Include("User")
                 .Include("Course")
                 .Include("Replies")
+                .Include("Replies.Likes")
                 .Include("Likes")
                 .Where(c => c.CourseId == courseId && c.CommentId == null)
                 .OrderBy(c => c.CommentDateTime).ToList();

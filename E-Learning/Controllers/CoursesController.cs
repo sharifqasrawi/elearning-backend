@@ -59,7 +59,7 @@ namespace E_Learning.Controllers
 
                 foreach (var course in courses)
                 {
-                    var res = ResponseGenerator.GenerateCourseResponse(course);
+                    var res = ResponseGenerator.GenerateCourseResponse(course, true);
                   
                     response.Add(res);
                 }
@@ -82,7 +82,7 @@ namespace E_Learning.Controllers
             {
                 var course = _courseRepository.FindById(id);
 
-                var response = ResponseGenerator.GenerateCourseResponse(course);
+                var response = ResponseGenerator.GenerateCourseResponse(course, true);
 
                 return Ok(new { course = response });
             }
@@ -106,7 +106,7 @@ namespace E_Learning.Controllers
 
                 foreach (var course in courses)
                 {
-                    var res = ResponseGenerator.GenerateCourseResponse(course);
+                    var res = ResponseGenerator.GenerateCourseResponse(course,true);
 
                     response.Add(res);
                 }
@@ -161,7 +161,7 @@ namespace E_Learning.Controllers
 
                 var createdCourse = _courseRepository.Create(newCourse);
 
-                var response = ResponseGenerator.GenerateCourseResponse(createdCourse);
+                var response = ResponseGenerator.GenerateCourseResponse(createdCourse, true);
 
 
                 if (createdCourse != null)
@@ -217,7 +217,7 @@ namespace E_Learning.Controllers
 
                 var updatedCourse = _courseRepository.Update(newCourse);
 
-                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse);
+                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse, true);
 
 
                 if (updatedCourse != null)
@@ -256,7 +256,7 @@ namespace E_Learning.Controllers
                 }
                 var updatedCourse = _courseRepository.Update(crs);
 
-                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse);
+                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse, true);
 
                 return Ok(new { updatedCourse = response });
             }
@@ -290,7 +290,7 @@ namespace E_Learning.Controllers
                 }
                 var updatedCourse = _courseRepository.Update(crs);
 
-                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse);
+                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse, true);
 
                 return Ok(new { updatedCourse = response });
             }
@@ -335,7 +335,7 @@ namespace E_Learning.Controllers
 
                 var updatedCourse = _courseRepository.Update(course);
 
-                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse);
+                var response = ResponseGenerator.GenerateCourseResponse(updatedCourse, true);
 
                 return Ok(new { updatedCourse = response });
             }
@@ -488,7 +488,7 @@ namespace E_Learning.Controllers
                 }
                 var course = _courseRepository.FindById(session.Section.Course.Id);
 
-                var response = ResponseGenerator.GenerateCourseResponse(course);
+                var response = ResponseGenerator.GenerateCourseResponse(course, true);
 
                 return Ok(new { updatedCourse = response });
             }
@@ -512,7 +512,7 @@ namespace E_Learning.Controllers
 
                 var course = _courseRepository.FindById(courseId);
 
-                var response = ResponseGenerator.GenerateCourseResponse(course);
+                var response = ResponseGenerator.GenerateCourseResponse(course, true);
 
                 return Ok(new { updatedCourse = response });
             }
