@@ -364,5 +364,57 @@ namespace E_Learning.Controllers
             errorMessages.Add("Cannot reset password. Please try again.");
             return BadRequest(new { errors = errorMessages });
         }
+
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            var errorMessages = new List<string>();
+
+            if (string.IsNullOrEmpty(changePasswordDto.CurrentPassword))
+                errorMessages.Add("Password is required");
+
+            if (string.IsNullOrEmpty(changePasswordDto.NewPassword))
+                errorMessages.Add("Password is required");
+
+            if (string.IsNullOrEmpty(changePasswordDto.ConfirmPassword))
+                errorMessages.Add("Password is required");
+
+            if (errorMessages.Count > 0)
+                return BadRequest(new { errors = errorMessages });
+
+            if (changePasswordDto.NewPassword != changePasswordDto.ConfirmPassword)
+            {
+                errorMessages.Add("Passwords do not match");
+
+                return BadRequest(new { errors = errorMessages });
+            }
+
+            var user = await _userManager.FindByIdAsync(changePasswordDto.UserId);
+
+            if (!await _userManager.CheckPasswordAsync(user, changePasswordDto.CurrentPassword))
+            {
+                errorMessages.Add("Current password is incorrect.");
+
+                return BadRequest(new { errors = errorMessages });
+            }
+
+            if (user != null)
+            {
+                var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
+                if (result.Succeeded)
+                {
+                    return Ok(new { result = true });
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    errorMessages.Add(error.Description);
+                }
+                return BadRequest(new { errors = errorMessages });
+            }
+
+            errorMessages.Add("Cannot reset password. Please try again.");
+            return BadRequest(new { errors = errorMessages });
+        }
     }
 }

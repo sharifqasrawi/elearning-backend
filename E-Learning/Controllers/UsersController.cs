@@ -103,6 +103,7 @@ namespace E_Learning.Controllers
                 firstName = user.FirstName,
                 lastName = user.LastName,
                 username = user.UserName,
+                email = user.Email,
                 country = user.Country,
                 gender = user.Gender,
                 isAdmin = user.IsAdmin,
@@ -376,6 +377,8 @@ namespace E_Learning.Controllers
                 user.EmailConfirmed = userDto.EmailConfirmed.Value;
                 user.Country = userDto.Country;
                 user.Gender = userDto.Gender;
+
+
                 user.IsAdmin = userDto.IsAdmin.Value;
                 user.IsAuthor = userDto.IsAuthor.Value;
 
@@ -383,7 +386,7 @@ namespace E_Learning.Controllers
 
                 if (result.Succeeded)
                 {
-                    if (user.IsAdmin)
+                    if (user.IsAdmin && !(await _userManager.IsInRoleAsync(user, "Admin")))
                     {
                         var addToAdminResult = await _userManager.AddToRoleAsync(user, "Admin");
                         if (!addToAdminResult.Succeeded)
@@ -400,7 +403,7 @@ namespace E_Learning.Controllers
                     {
                         var removeFromAdminResult = await _userManager.RemoveFromRoleAsync(user, "Admin");
                     }
-                    if (user.IsAuthor)
+                    if (user.IsAuthor && !(await _userManager.IsInRoleAsync(user, "Author")))
                     {
                         var addToAuthorResult = await _userManager.AddToRoleAsync(user, "Author");
                         if (!addToAuthorResult.Succeeded)
@@ -446,6 +449,79 @@ namespace E_Learning.Controllers
             {
                 // return error message if there was an exception
 
+                errorMessages.Add(ex.Message);
+
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+        [HttpPut("update-profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserDto userDto)
+        {
+            var errorMessages = new List<string>();
+
+            if (string.IsNullOrEmpty(userDto.FirstName))
+                errorMessages.Add("First name is required");
+
+            if (string.IsNullOrEmpty(userDto.LastName))
+                errorMessages.Add("Last name is required");
+
+            if (string.IsNullOrEmpty(userDto.Country))
+                errorMessages.Add("Country is required");
+
+            if (string.IsNullOrEmpty(userDto.Gender))
+                errorMessages.Add("Gender is required");
+
+            if (string.IsNullOrEmpty(userDto.Email))
+                errorMessages.Add("Email is required");
+
+            if (errorMessages.Count > 0)
+                return BadRequest(new { errors = errorMessages });
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userDto.Id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                user.FirstName = userDto.FirstName;
+                user.LastName = userDto.LastName;
+                user.Email = userDto.Email;
+                user.Country = userDto.Country;
+                user.Gender = userDto.Gender;
+
+                var result = await _userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    
+                    var response = new
+                    {
+                        id = user.Id,
+                        firstName = user.FirstName,
+                        lastName = user.LastName,
+                        email = user.Email,
+                        emailConfirmed = user.EmailConfirmed,
+                        country = user.Country,
+                        gender = user.Gender,
+                        isAdmin = user.IsAdmin,
+                        isAuthor = user.IsAuthor,
+                        isActive = user.IsActive
+                    };
+
+                    return Ok(new { user = response });
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    errorMessages.Add(error.Description);
+                }
+                return BadRequest(new { errors = errorMessages });
+            }
+            catch (Exception ex)
+            {
                 errorMessages.Add(ex.Message);
 
                 return BadRequest(new { errors = errorMessages });
