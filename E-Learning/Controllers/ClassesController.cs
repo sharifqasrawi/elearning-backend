@@ -19,11 +19,13 @@ namespace E_Learning.Controllers
         private readonly IClassRepository _classRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly ISessionRepository _sessionRepository;
+        private readonly IDoneSessionRepository _doneSessionRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly INotificationRepository _notificationRepository;
         public ClassesController(IClassRepository classRepository,
                                  ICourseRepository courseRepository,
                                  ISessionRepository sessionRepository,
+                                 IDoneSessionRepository doneSessionRepository,
                                  UserManager<ApplicationUser> userManager,
                                  INotificationRepository notificationRepository)
         {
@@ -32,6 +34,7 @@ namespace E_Learning.Controllers
             _userManager = userManager;
             _notificationRepository = notificationRepository;
             _sessionRepository = sessionRepository;
+            _doneSessionRepository = doneSessionRepository;
         }
 
 
@@ -127,7 +130,10 @@ namespace E_Learning.Controllers
                        .SingleOrDefault(e => e.ClassId == classUser.ClassId
                                           && e.UserId == classUser.UserId);
 
+                    _doneSessionRepository.DeleteAllByCourseUser(cls.Course.Id, classUser.UserId);
+                  
                     cls.ClassUsers.Remove(enrollement);
+
                 }
 
                 var updatedClass = _classRepository.Update(cls);

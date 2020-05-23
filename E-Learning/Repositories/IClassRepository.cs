@@ -15,5 +15,7 @@ namespace E_Learning.Repositories
         IList<Class> GetClasses();
 
         bool IsExistsInCourse(long courseId);
+
+        bool IsUserInClass(string classId, string userId);
     }
 }

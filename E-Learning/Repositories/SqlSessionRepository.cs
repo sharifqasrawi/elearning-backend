@@ -42,6 +42,8 @@ namespace E_Learning.Repositories
             var session = dBContext.Sessions
                                    .Include("Section")
                                    .Include("Section.Course")
+                                   .Include("Section.Course.Class")
+                                   .Include("Section.Course.Class.ClassUsers")
                                    .Include("Contents")
                                    .SingleOrDefault(s => s.Id == id);
 
@@ -53,6 +55,8 @@ namespace E_Learning.Repositories
             var sessions = dBContext.Sessions
                                    .Include("Section")
                                    .Include("Section.Course")
+                                   .Include("Section.Course.Class")
+                                   .Include("Section.Course.Class.ClassUsers")
                                    .Include("Contents").ToList();
 
             return sessions;

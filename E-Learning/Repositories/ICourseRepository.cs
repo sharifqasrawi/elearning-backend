@@ -10,6 +10,7 @@ namespace E_Learning.Repositories
     {
         Course Create(Course course);
         IList<Course> GetCourses();
+        IList<Course> GetEnrolledCoursesByUserId(string userId);
         Course Update(Course courseChanges);
         Course Delete(long id);
         Course FindById(long id);

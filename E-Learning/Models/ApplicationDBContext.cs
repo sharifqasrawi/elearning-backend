@@ -26,6 +26,7 @@ namespace E_Learning.Models
         public DbSet<Section> Sections { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<SessionContent> SessionContents { get; set; }
+        public DbSet<DoneSession> DoneSessions { get; set; }
 
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Like> Likes { get; set; }
@@ -37,6 +38,11 @@ namespace E_Learning.Models
         public DbSet<CourseRating> CourseRatings { get; set; }
         public DbSet<AppRating> AppRatings { get; set; }
         public DbSet<Report> Reports { get; set; }
+
+
+        public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<Answer> Answers { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

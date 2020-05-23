@@ -107,6 +107,7 @@ namespace E_Learning
             services.AddScoped<ISectionRepository, SqlSectionRepository>();
             services.AddScoped<ISessionRepository, SqlSessionRepository>();
             services.AddScoped<ISessionContentRepository, SqlSessionContentRepository>();
+            services.AddScoped<IDoneSessionRepository, SqlDoneSessionsRepository>();
             services.AddScoped<ITagRepository, SqlTagRepository>();
             services.AddScoped<ILikeRepository, SqlLikeRepository>();
             services.AddScoped<ICommentRepository, SqlCommentRepository>();

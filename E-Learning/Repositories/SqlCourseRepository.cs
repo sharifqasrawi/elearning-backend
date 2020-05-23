@@ -137,5 +137,29 @@ namespace E_Learning.Repositories
             dBContext.SaveChanges();
             return courseChanges;
         }
+
+        public IList<Course> GetEnrolledCoursesByUserId(string userId)
+        {
+            var courses = dBContext.Courses
+                                  .Include("Category")
+                                  .Include("Sections")
+                                  .Include("Sections.Sessions")
+                                  .Include("Sections.Sessions.Contents")
+                                  .Include("CourseTags")
+                                  .Include("CourseTags.Tag")
+                                  .Include("Likes")
+                                  .Include("Comments")
+                                  .Include("Comments.Replies")
+                                  .Include("Comments.Likes")
+                                  .Include("Class")
+                                  .Include("Class.ClassUsers")
+                                  .Include("Class.ClassUsers.User")
+                                  .Include("Ratings")
+                                  .Include("Ratings.User")
+                                  .Where(c => c.Class.ClassUsers.SingleOrDefault(u => u.UserId == userId).UserId == userId)
+                                  .ToList();
+
+            return courses;
+        }
     }
 }

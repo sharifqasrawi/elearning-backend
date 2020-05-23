@@ -6,6 +6,7 @@ using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Slugify;
 
@@ -17,18 +18,27 @@ namespace E_Learning.Controllers
     {
         private readonly ISessionRepository _sessionRepository;
         private readonly ISessionContentRepository _sessioncontentRepository;
+        private readonly IDoneSessionRepository _doneSessionRepository;
         private readonly ISectionRepository _sectionRepository;
         private readonly ICourseRepository _courseRepository;
+        private readonly IClassRepository _classRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public SessionsController(ISessionRepository sessionRepository,
                                   ISessionContentRepository sessionContentRepository,
+                                  IDoneSessionRepository doneSessionRepository,
                                   ISectionRepository sectionRepository,
-                                  ICourseRepository courseRepository)
+                                  ICourseRepository courseRepository,
+                                  IClassRepository classRepository,
+                                  UserManager<ApplicationUser> userManager)
         {
             _sessionRepository = sessionRepository;
             _sessioncontentRepository = sessionContentRepository;
+            _doneSessionRepository = doneSessionRepository;
             _sectionRepository = sectionRepository; 
             _courseRepository = courseRepository;
+            _classRepository = classRepository;
+            _userManager = userManager;
         }
 
 
@@ -293,6 +303,198 @@ namespace E_Learning.Controllers
                 
 
                 return Ok(new { maxOrder });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("done")]
+        public IActionResult GetUserDoneSessions([FromQuery] string userId, long? courseId)
+        {
+            var errorMessages = new List<string>();
+            if (string.IsNullOrEmpty(userId) || courseId == null)
+            {
+                errorMessages.Add("Oops. An error occured.");
+                return BadRequest(new { errors = errorMessages });
+            }
+
+            try
+            {
+
+                var doneSessions = _doneSessionRepository.GetDoneSessionsByUserAndCourse(userId, courseId.Value);
+
+                var courseSessionsCount = _sessionRepository.GetSessionsByCourseId(courseId.Value).Count;
+
+                var doneSessionsCount = doneSessions.Count;
+
+                var donePercentage = ((doneSessionsCount * 100) / courseSessionsCount);
+
+
+                return Ok(new { doneSessions, donePercentage });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("mark-session")]
+        public async Task<IActionResult> MarkSession([FromBody] DoneSession doneSession)
+        {
+            var errorMessages = new List<string>();
+            if(string.IsNullOrEmpty(doneSession.UserID) || doneSession.SessionId == null)
+            {
+                errorMessages.Add("Error marking session");
+                return BadRequest(new { errors = errorMessages });
+            }
+
+            try
+            {
+
+                var user = await _userManager.FindByIdAsync(doneSession.UserID);
+                var session = _sessionRepository.FindById(doneSession.SessionId.Value);
+
+                if (user == null || session == null)
+                {
+                    errorMessages.Add("Error marking session");
+                    return BadRequest(new { errors = errorMessages });
+                }
+
+                if(session.Section.Course.Class == null || !_classRepository.IsUserInClass(session.Section.Course.Class.Id, user.Id))
+                {
+                    errorMessages.Add("User is not enrolled in course class.");
+                    return BadRequest(new { errors = errorMessages });
+                }
+
+                var ds = _doneSessionRepository.FindBySessionAndUser(session.Id, user.Id);
+                if (ds == null)
+                {
+                    var newDoneSession = new DoneSession()
+                    {
+                        User = user,
+                        UserID = user.Id,
+                        Session = session,
+                        SessionId = session.Id,
+                        DoneDateTime = DateTime.Now
+                    };
+
+                    var createdDoneSession = _doneSessionRepository.Create(newDoneSession);
+
+                    if (createdDoneSession == null)
+                    {
+                        errorMessages.Add("Error marking session");
+                        return BadRequest(new { errors = errorMessages });
+                    }
+                    var courseId = session.Section.Course.Id;
+                    var doneSessions = _doneSessionRepository.GetDoneSessionsByUserAndCourse(doneSession.UserID, courseId);
+
+                    var courseSessionsCount = _sessionRepository.GetSessionsByCourseId(courseId).Count;
+
+                    var doneSessionsCount = doneSessions.Count;
+
+                    var donePercentage = ((doneSessionsCount * 100) / courseSessionsCount);
+
+                    return Ok(new { createdDoneSession, donePercentage });
+                }
+                return Ok(new { createdDoneSession = ds });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpDelete("unmark-session")]
+        public IActionResult UnmarkSession([FromQuery] long? sessionId, string userId)
+        {
+            var errorMessages = new List<string>();
+            if (string.IsNullOrEmpty(userId) || sessionId == null)
+            {
+                errorMessages.Add("Error unmarking session");
+                return BadRequest(new { errors = errorMessages });
+            }
+
+            try
+            {
+                var doneSession = _doneSessionRepository.FindBySessionAndUser(sessionId.Value, userId);
+
+                if (doneSession == null || doneSession.UserID != userId)
+                {
+                    errorMessages.Add("Error unmarking session");
+                    return BadRequest(new { errors = errorMessages });
+                }
+
+                if (!_classRepository.IsUserInClass(doneSession.Session.Section.Course.Class.Id, userId))
+                {
+                    errorMessages.Add("User is not enrolled in course class.");
+                    return BadRequest(new { errors = errorMessages });
+                }
+
+               var deletedDoneSession = _doneSessionRepository.Delete(doneSession.Id);
+
+                var courseId = doneSession.Session.Section.Course.Id;
+                var doneSessions = _doneSessionRepository.GetDoneSessionsByUserAndCourse(doneSession.UserID, courseId);
+
+                var courseSessionsCount = _sessionRepository.GetSessionsByCourseId(courseId).Count;
+
+                var doneSessionsCount = doneSessions.Count;
+
+                var donePercentage = ((doneSessionsCount * 100) / courseSessionsCount);
+
+                return Ok(new { deletedDoneSessionId = deletedDoneSession.Id, donePercentage });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("courses-progress")]
+        public IActionResult GetUserCoursesProgress([FromQuery] string userId)
+        {
+            var errorMessages = new List<string>();
+            if (string.IsNullOrEmpty(userId))
+            {
+                errorMessages.Add("Oops. An error occured.");
+                return BadRequest(new { errors = errorMessages });
+            }
+
+            try
+            {
+                var courses = _courseRepository.GetEnrolledCoursesByUserId(userId);
+
+                var memberCoursesProgress = new List<object>();
+
+                foreach (var course in courses)
+                {
+                    var doneSessions = _doneSessionRepository.GetDoneSessionsByUserAndCourse(userId, course.Id);
+
+                    var courseSessionsCount = _sessionRepository.GetSessionsByCourseId(course.Id).Count;
+
+                    var doneSessionsCount = doneSessions.Count;
+
+                    var donePercentage = ((doneSessionsCount * 100) / courseSessionsCount);
+
+
+                    memberCoursesProgress.Add(new
+                    {
+                        courseId = course.Id,
+                        donePercentage
+                    });
+                }
+
+                return Ok(new { memberCoursesProgress });
             }
             catch (Exception ex)
             {

@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace E_Learning.Repositories
 {
@@ -63,6 +62,16 @@ namespace E_Learning.Repositories
                 return false;
             }
             return true;
+        }
+
+        public bool IsUserInClass(string classId, string userId)
+        {
+            var cls = dBContext.Classes.Find(classId);
+            foreach(var member in cls.ClassUsers)
+            {
+                if (member.UserId == userId) return true;
+            }
+            return false;
         }
 
         public Class Update(Class clsChanges)

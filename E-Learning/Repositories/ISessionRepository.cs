@@ -16,5 +16,6 @@ namespace E_Learning.Repositories
 
         IList<Session> GetSessionsByCourseId(long courseId);
         IList<Session> GetSessionsBySectionId(long sectionId);
+
     }
 }
