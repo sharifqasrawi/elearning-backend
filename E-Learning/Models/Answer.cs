@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +12,10 @@ namespace E_Learning.Models
         public string Text_EN { get; set; }
         public string ImagePath { get; set; }
         public bool? IsCorrect { get; set; }
+
+        [JsonIgnore]
+        public Question Question { get; set; }
+        public long QuestionId { get; set; }
 
 
         public DateTime CreatedAt { get; set; }

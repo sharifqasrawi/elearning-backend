@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20200524153121_updatedQuiz7.cs" />
+    <Compile Remove="Migrations\20200524153121_updatedQuiz7.Designer.cs" />
+    <Compile Remove="Migrations\20200524153415_updatedQuiz1.cs" />
+    <Compile Remove="Migrations\20200524153415_updatedQuiz1.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="wwwroot\%2a%2a" />
   </ItemGroup>
 
