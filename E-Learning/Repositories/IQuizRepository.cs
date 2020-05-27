@@ -13,12 +13,14 @@ namespace E_Learning.Repositories
         Quiz DeleteQuiz(long id);
         Quiz FindQuizById(long id);
         IList<Quiz> GetQuizzes();
+        IList<Quiz> GetQuizzesOnly();
 
         Question CreateQuestion(Question question);
         Question UpdateQuestion(Question questionChanges);
         Question DeleteQuestion(long id);
         Question FindQuestionById(long id);
         IList<Question> GetQuestions(long quizId);
+        IList<Question> GetQuestionsOnly(long quizId);
 
         Answer CreateAnswer(Answer answer);
         Answer UpdateAnswer(Answer answerChanges);

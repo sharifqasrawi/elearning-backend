@@ -62,6 +62,15 @@ namespace E_Learning.Repositories
             return quizzes;
         }
 
+        public IList<Quiz> GetQuizzesOnly()
+        {
+            var quizzes = dBContext.Quizzes
+                                   .ToList();
+
+            return quizzes;
+        }
+
+
 
         //////////////////////////
 
@@ -105,6 +114,15 @@ namespace E_Learning.Repositories
             var questions = dBContext.Questions
                                  .Include("Quiz")
                                  .Include("Answers")
+                                 .Where(q => q.QuizId == quizId)
+                                 .ToList();
+
+            return questions;
+        }
+
+        public IList<Question> GetQuestionsOnly(long quizId)
+        {
+            var questions = dBContext.Questions
                                  .Where(q => q.QuizId == quizId)
                                  .ToList();
 

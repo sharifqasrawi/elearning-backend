@@ -201,7 +201,7 @@ namespace E_Learning.Controllers
             var errorMessages = new List<string>();
             try
             {
-                var quizzes = _quizRepository.GetQuizzes()
+                var quizzes = _quizRepository.GetQuizzesOnly()
                                              .Where(q => q.DeletedAt == null)
                                              .ToList();
 
@@ -238,6 +238,33 @@ namespace E_Learning.Controllers
 
         /////////////////////////////////
 
+        [AllowAnonymous]
+        [HttpGet("questions")]
+        public IActionResult GetQuestions([FromQuery] long? quizId)
+        {
+            var errorMessages = new List<string>();
+            try
+            {
+                if(quizId == null)
+                {
+                    return NotFound();
+                }
+
+                var questions = _quizRepository.GetQuestionsOnly(quizId.Value);
+
+                if(questions == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new { questions });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
 
         [AllowAnonymous]
         [HttpPost("create-question")]
@@ -373,7 +400,7 @@ namespace E_Learning.Controllers
 
                 var deletedQuestion = _quizRepository.DeleteQuestion(question.Id);
 
-                return Ok(new { deletedQuestion });
+                return Ok(new { deletedQuestionId = deletedQuestion.Id });
             }
             catch (Exception ex)
             {
@@ -384,6 +411,34 @@ namespace E_Learning.Controllers
 
         /////////////////////////////////
 
+
+        [AllowAnonymous]
+        [HttpGet("answers")]
+        public IActionResult GetAnswers([FromQuery] long? questionId)
+        {
+            var errorMessages = new List<string>();
+            try
+            {
+                if (questionId == null)
+                {
+                    return NotFound();
+                }
+
+                var answers = _quizRepository.GetAnswers(questionId.Value);
+
+                if (answers == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new { answers });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
 
         [AllowAnonymous]
         [HttpPost("create-answer")]
@@ -417,7 +472,7 @@ namespace E_Learning.Controllers
 
                 var createdAnswer = _quizRepository.CreateAnswer(newAnswer);
 
-                return Ok(new { question });
+                return Ok(new { createdAnswer });
             }
             catch (Exception ex)
             {
@@ -461,7 +516,7 @@ namespace E_Learning.Controllers
 
                 var updatedAnswer = _quizRepository.UpdateAnswer(a);
 
-                return Ok(new { question });
+                return Ok(new { updatedAnswer });
             }
             catch (Exception ex)
             {
@@ -523,7 +578,7 @@ namespace E_Learning.Controllers
 
                 var deletedAnswer= _quizRepository.DeleteAnswer(answer.Id);
 
-                return Ok(new { question = deletedAnswer.Question });
+                return Ok(new { deletedAnswerId = deletedAnswer.Id });
             }
             catch (Exception ex)
             {
