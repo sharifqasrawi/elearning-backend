@@ -4,14 +4,16 @@ using E_Learning.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace E_Learning.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20200529085530_updatedUserQuiz2")]
+    partial class updatedUserQuiz2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -974,6 +976,9 @@ namespace E_Learning.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<long?>("CurrentQuestionId")
+                        .HasColumnType("bigint");
+
                     b.Property<bool?>("IsOngoing")
                         .HasColumnType("bit");
 
@@ -996,6 +1001,8 @@ namespace E_Learning.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CurrentQuestionId");
 
                     b.HasIndex("QuizId");
 
@@ -1383,6 +1390,11 @@ namespace E_Learning.Migrations
 
             modelBuilder.Entity("E_Learning.Models.UserQuiz", b =>
                 {
+                    b.HasOne("E_Learning.Models.Question", "CurrentQuestion")
+                        .WithMany()
+                        .HasForeignKey("CurrentQuestionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("E_Learning.Models.Quiz", "Quiz")
                         .WithMany()
                         .HasForeignKey("QuizId")

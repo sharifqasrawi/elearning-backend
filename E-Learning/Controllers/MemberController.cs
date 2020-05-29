@@ -18,15 +18,18 @@ namespace E_Learning.Controllers
     {
         private readonly ICourseRepository _courseRepository;
         private readonly IClassRepository _classRepository;
+        private readonly IUserQuizRepository _userQuizRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public MemberController(ICourseRepository courseRepository,
                                 IClassRepository classRepository,
+                                IUserQuizRepository userQuizRepository,
                                  UserManager<ApplicationUser>  userManager)
         {
             _courseRepository = courseRepository;
             _classRepository = classRepository;
             _userManager = userManager;
+            _userQuizRepository = userQuizRepository;
         }
 
         [AllowAnonymous]
@@ -57,6 +60,44 @@ namespace E_Learning.Controllers
                 }
 
                 return Ok(new { courses });
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add(ex.Message);
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("get-user-quizzes")]
+        public IActionResult GetUserQuiz([FromQuery] string userId)
+        {
+            var errorMessages = new List<string>();
+            try
+            {
+                if (string.IsNullOrEmpty(userId))
+                {
+                    errorMessages.Add("Error fetching data");
+                    return BadRequest(new { errors = errorMessages });
+                }
+
+                var userQuizzes = _userQuizRepository.GetUserQuizzesByUserId(userId)
+                                                        .OrderByDescending(x => x.TakeDateTime)
+                                                       .Select(x => new
+                                                       {
+                                                           id = x.Id,
+                                                           quizId = x.QuizId,
+                                                           quizTitle = x.Quiz.title_EN,
+                                                           takeDateTime = x.TakeDateTime.Value,
+                                                           userId = x.UserId,
+                                                           isStarted = x.IsStarted.Value,
+                                                           isOngoing = x.IsOngoing.Value,
+                                                           isSubmitted = x.IsSubmitted.Value,
+                                                           result = x.Result
+                                                       }).ToList();
+
+
+                return Ok(new { userQuizzes });
             }
             catch (Exception ex)
             {

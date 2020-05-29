@@ -62,9 +62,10 @@ namespace E_Learning.Controllers
                                                             && (c.Category.Id == categoryId || categoryId == null)
                                                             && (c.Id == courseId || courseId == null)
                                                             && c.IsPublished == true)
-                                                .OrderBy(c => c.Title_EN)
-                                                .ThenBy(c => c.Category)
-                                                .ThenBy(c => c.CreatedAt)
+                                                .OrderByDescending(c => c.PublishedAt)
+                                                .ThenBy(c => c.Title_EN)
+                                                .ThenBy(c => c.Category.Title_EN)
+                                                .Take(5)
                                                 .ToList();
 
                 var response = new List<object>();

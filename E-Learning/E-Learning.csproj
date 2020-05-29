@@ -10,6 +10,8 @@
     <Compile Remove="Migrations\20200524153121_updatedQuiz7.Designer.cs" />
     <Compile Remove="Migrations\20200524153415_updatedQuiz1.cs" />
     <Compile Remove="Migrations\20200524153415_updatedQuiz1.Designer.cs" />
+    <Compile Remove="Migrations\20200528163930_addedUserQuizAnswer.cs" />
+    <Compile Remove="Migrations\20200528163930_addedUserQuizAnswer.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

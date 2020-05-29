@@ -118,6 +118,7 @@ namespace E_Learning
             services.AddScoped<IAppRatingRepository, SqlAppRatingRepository>();
             services.AddScoped<IReportRepository, SqlReportRepository>();
             services.AddScoped<IQuizRepository, SqlQuizRepository>();
+            services.AddScoped<IUserQuizRepository, SqlUserQuizRepository>();
 
 
             //services.AddMvc(options =>

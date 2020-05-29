@@ -4,14 +4,16 @@ using E_Learning.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace E_Learning.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20200528101647_addedUserQuiz")]
+    partial class addedUserQuiz
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -974,8 +976,8 @@ namespace E_Learning.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<bool?>("IsOngoing")
-                        .HasColumnType("bit");
+                    b.Property<long?>("CurrentQuestionId")
+                        .HasColumnType("bigint");
 
                     b.Property<bool?>("IsStarted")
                         .HasColumnType("bit");
@@ -992,46 +994,21 @@ namespace E_Learning.Migrations
                     b.Property<DateTime?>("TakeDateTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("TakesCount")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CurrentQuestionId");
 
                     b.HasIndex("QuizId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("UserQuizzes");
-                });
-
-            modelBuilder.Entity("E_Learning.Models.UserQuizAnswer", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<long>("AnswerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("ChooseDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("QuestionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("UserQuizId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AnswerId");
-
-                    b.HasIndex("QuestionId");
-
-                    b.HasIndex("UserQuizId");
-
-                    b.ToTable("UserQuizAnswers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1383,6 +1360,11 @@ namespace E_Learning.Migrations
 
             modelBuilder.Entity("E_Learning.Models.UserQuiz", b =>
                 {
+                    b.HasOne("E_Learning.Models.Question", "CurrentQuestion")
+                        .WithMany()
+                        .HasForeignKey("CurrentQuestionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("E_Learning.Models.Quiz", "Quiz")
                         .WithMany()
                         .HasForeignKey("QuizId")
@@ -1393,27 +1375,6 @@ namespace E_Learning.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("E_Learning.Models.UserQuizAnswer", b =>
-                {
-                    b.HasOne("E_Learning.Models.Answer", "Answer")
-                        .WithMany()
-                        .HasForeignKey("AnswerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("E_Learning.Models.Question", "Question")
-                        .WithMany()
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("E_Learning.Models.UserQuiz", "UserQuiz")
-                        .WithMany()
-                        .HasForeignKey("UserQuizId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
