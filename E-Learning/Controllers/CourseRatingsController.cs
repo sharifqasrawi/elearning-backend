@@ -20,21 +20,25 @@ namespace E_Learning.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ICourseRepository _courseRepository;
         private readonly IHubContext<SignalHub> _hubContext;
-
+        private readonly ITranslator _translator;
         public CourseRatingsController(ICourseRatingRepository courseRatingRepository,
                                        ICourseRepository courseRepository,
                                        UserManager<ApplicationUser> userManager,
-                                       IHubContext<SignalHub> hubContext)
+                                       IHubContext<SignalHub> hubContext,
+                                       ITranslator translator)
         {
             _courseRatingRepository = courseRatingRepository;
             _courseRepository = courseRepository;
             _userManager = userManager;
             _hubContext = hubContext;
+            _translator = translator;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> RateCourse([FromBody] CourseRating courseRating)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -43,7 +47,7 @@ namespace E_Learning.Controllers
 
                 if(user == null || course == null)
                 {
-                    errorMessages.Add("Error rating course.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -52,7 +56,7 @@ namespace E_Learning.Controllers
 
                 if (!allowedValues.Contains(courseRating.Value))
                 {
-                    errorMessages.Add("Error rating course.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -86,7 +90,7 @@ namespace E_Learning.Controllers
 
                 if (createdCourseRating == null)
                 {
-                    errorMessages.Add("Error rating course.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -94,9 +98,9 @@ namespace E_Learning.Controllers
 
                 return Ok(new { course = ResponseGenerator.GenerateCourseResponse(course,false) });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

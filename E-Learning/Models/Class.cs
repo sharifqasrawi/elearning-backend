@@ -12,6 +12,7 @@ namespace E_Learning.Models
         [Key]
         public string Id { get; set; }
         public string Name_EN { get; set; }
+        public string Name_FR { get; set; }
 
         [JsonIgnore]
         public Course Course { get; set; }

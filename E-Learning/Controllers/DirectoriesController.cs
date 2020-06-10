@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using E_Learning.Dtos.Users;
+using E_Learning.Helpers;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -14,21 +15,28 @@ namespace E_Learning.Controllers
 {
 
     [Route("[controller]")]
+
     [ApiController]
     public class DirectoriesController : ControllerBase
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IDirectoryRepository _directoryRepository;
+        private readonly ITranslator _translator;
 
-        public DirectoriesController(IWebHostEnvironment webHostEnvironment, IDirectoryRepository directoryRepository)
+        public DirectoriesController(IWebHostEnvironment webHostEnvironment,
+                                     IDirectoryRepository directoryRepository,
+                                     ITranslator translator)
         {
             _webHostEnvironment = webHostEnvironment;
             _directoryRepository = directoryRepository;
+            _translator = translator;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public IActionResult CreateDirectory([FromBody] DirectoryDto directoryDto)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             try
@@ -54,28 +62,30 @@ namespace E_Learning.Controllers
                     }
                     else
                     {
-                        errorMessages.Add("Error creating directory");
+                        errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                         return BadRequest(new { errors = errorMessages });
                     }
 
                 }
                 else
                 {
-                    errorMessages.Add("Directory already exists");
+                    errorMessages.Add(_translator.GetTranslation("DIRECTORIES.DIRECTORY_EXISTS", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult GetAllDirectories()
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             try
@@ -83,17 +93,18 @@ namespace E_Learning.Controllers
                 var dirs = _directoryRepository.GetDirectories();
                 return Ok(new { directories = dirs });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("physical")]
         public IActionResult GetPhysicalDirectoriesIn([FromQuery] string path)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -116,17 +127,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { physical_directories = dirsPaths });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpGet("directory")]
         public IActionResult GetDirectoryByPath([FromQuery] string path)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -136,16 +148,17 @@ namespace E_Learning.Controllers
 
                 return Ok(new { directory = dir });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete")]
         public IActionResult DeleteDirectory([FromQuery] int dirId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -166,12 +179,12 @@ namespace E_Learning.Controllers
                 }
 
 
-                errorMessages.Add("Directory not found");
+                errorMessages.Add(_translator.GetTranslation("NOT_FOUND", lang));
                 return BadRequest(new { errors = errorMessages });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

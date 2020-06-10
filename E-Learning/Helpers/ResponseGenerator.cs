@@ -32,6 +32,7 @@ namespace E_Learning.Helpers
 
                     if (courseSection.Sessions != null)
                     {
+
                         foreach (var sectionSession in courseSection.Sessions)
                         {
                             sessions.Add(new Session()
@@ -39,6 +40,8 @@ namespace E_Learning.Helpers
                                 Id = sectionSession.Id,
                                 Title_EN = sectionSession.Title_EN,
                                 Slug_EN = sectionSession.Slug_EN,
+                                Title_FR = sectionSession.Title_FR,
+                                Slug_FR = sectionSession.Slug_FR,
                                 Duration = sectionSession.Duration,
                                 Order = sectionSession.Order,
                                 CreatedAt = sectionSession.CreatedAt,
@@ -53,6 +56,8 @@ namespace E_Learning.Helpers
                         Id = courseSection.Id,
                         Name_EN = courseSection.Name_EN,
                         Slug_EN = courseSection.Slug_EN,
+                        Name_FR = courseSection.Name_FR,
+                        Slug_FR = courseSection.Slug_FR,
                         Order = courseSection.Order,
                         CreatedAt = courseSection.CreatedAt,
                         CreatedBy = courseSection.CreatedBy,
@@ -169,6 +174,10 @@ namespace E_Learning.Helpers
                 course.Slug_EN,
                 course.Description_EN,
                 course.Prerequisites_EN,
+                course.Title_FR,
+                course.Slug_FR,
+                course.Description_FR,
+                course.Prerequisites_FR,
                 course.Duration,
                 course.ImagePath,
                 course.IsFree,
@@ -202,7 +211,9 @@ namespace E_Learning.Helpers
                 session.Id,
                 session.Order,
                 session.Title_EN,
+                session.Title_FR,
                 session.Slug_EN,
+                session.Slug_FR,
                 session.Duration,
                 session.CreatedAt,
                 session.CreatedBy,

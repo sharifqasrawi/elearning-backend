@@ -7,7 +7,6 @@ using E_Learning.Hubs;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -23,24 +22,28 @@ namespace E_Learning.Controllers
         private readonly INotificationRepository _notificationRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHubContext<SignalHub> _hubContext;
+        private readonly ITranslator _translator;
 
         public CommentsController(ICommentRepository commentRepository,
                                   ICourseRepository courseRepository,
                                   INotificationRepository notificationRepository,
                                   UserManager<ApplicationUser> userManager,
-                                  IHubContext<SignalHub> hubContext)
+                                  IHubContext<SignalHub> hubContext,
+                                  ITranslator translator)
         {
             _commentRepository = commentRepository;
             _courseRepository = courseRepository;
             _notificationRepository = notificationRepository;
             _userManager = userManager;
             _hubContext = hubContext;
+            _translator = translator;
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] Comment comment)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -97,9 +100,9 @@ namespace E_Learning.Controllers
 
                 return Ok(new { createdComment = ResponseGenerator.GenerateCommentResponse(createdComment) });
             }
-            catch(Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
@@ -108,6 +111,7 @@ namespace E_Learning.Controllers
         [HttpGet]
         public IActionResult GetCommentsByCourseId([FromQuery] long courseId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -124,16 +128,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { comments });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize]
         [HttpDelete]
         public async Task<IActionResult> DeleteComment([FromQuery] long id)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -155,16 +161,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { deletedComment = ResponseGenerator.GenerateCommentResponse(deletedComment) });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> UpdateComment([FromBody] Comment comment)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -179,17 +187,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedComment = ResponseGenerator.GenerateCommentResponse(updatedComment)  });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-
+        [Authorize]
         [HttpGet("count")]
         public IActionResult CommentsCount()
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -198,9 +207,9 @@ namespace E_Learning.Controllers
 
                 return Ok(new { count });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

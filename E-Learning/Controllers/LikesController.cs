@@ -24,13 +24,15 @@ namespace E_Learning.Controllers
         private readonly INotificationRepository _notificationRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHubContext<SignalHub> _hubContext;
+        private readonly ITranslator _translator;
 
         public LikesController(ILikeRepository likeRepository,
                                ICourseRepository courseRepository,
                                ICommentRepository commentRepository,
                                INotificationRepository notificationRepository,
                                UserManager<ApplicationUser> userManager,
-                               IHubContext<SignalHub> hubContext)
+                               IHubContext<SignalHub> hubContext,
+                               ITranslator translator)
         {
             _likeRepository = likeRepository;
             _courseRepository = courseRepository;
@@ -38,11 +40,14 @@ namespace E_Learning.Controllers
             _notificationRepository = notificationRepository;
             _userManager = userManager;
             _hubContext = hubContext;
+            _translator = translator;
         }
 
+        [Authorize]
         [HttpPost("like-course")]
         public async Task<IActionResult> LikeCourse([FromBody] Like like, [FromQuery] string action)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -91,17 +96,18 @@ namespace E_Learning.Controllers
                 //return Ok(new { course = ResponseGenerator.GenerateCourseResponse(course,false) });
                 return Ok(new { like = updatedLike , action }) ;
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("like-comment")]
         public async Task<IActionResult> LikeComment([FromBody] Like like, [FromQuery] string action)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -171,16 +177,18 @@ namespace E_Learning.Controllers
                 return Ok(new { comment = ResponseGenerator.GenerateCommentResponse(comment) });
 
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("count")]
         public IActionResult LikesCount()
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -189,9 +197,9 @@ namespace E_Learning.Controllers
 
                 return Ok(new { count });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

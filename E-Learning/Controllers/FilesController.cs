@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using E_Learning.Helpers;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -18,35 +19,42 @@ namespace E_Learning.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IUploadedFileRepository _uploadedFileRepository;
         private readonly IDirectoryRepository _directoryRepository;
+        private readonly ITranslator _translator;
         public FilesController(IWebHostEnvironment webHostEnvironment,
                                 IDirectoryRepository directoryRepository,
-                                 IUploadedFileRepository uploadedFileRepository)
+                                 IUploadedFileRepository uploadedFileRepository,
+                                 ITranslator translator)
         {
             _webHostEnvironment = webHostEnvironment;
             _directoryRepository = directoryRepository;
             _uploadedFileRepository = uploadedFileRepository;
+            _translator = translator;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult GetUploadedFiles()
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 var uploadedFiles = _uploadedFileRepository.GetUploadedFiles();
                     
-                return Ok(new { uploadedFiles = uploadedFiles });
+                return Ok(new { uploadedFiles });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("upload"), DisableRequestSizeLimit]
         public IActionResult UploadFile([FromQuery] string directory)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -92,16 +100,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { status = "File Uploaded" });
             }
-            catch(Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete")]
         public IActionResult DeleteFile([FromQuery] int fileId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             try
@@ -121,12 +131,12 @@ namespace E_Learning.Controllers
                     return Ok(new { deletedFileId = deletedFile.Id });
                 }
 
-                errorMessages.Add("File not found");
+                errorMessages.Add(_translator.GetTranslation("NOT_FOUND", lang));
                 return BadRequest(new { errors = errorMessages });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

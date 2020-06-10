@@ -22,12 +22,14 @@ namespace E_Learning.Controllers
         private readonly IDoneSessionRepository _doneSessionRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly INotificationRepository _notificationRepository;
+        private readonly ITranslator _translator;
         public ClassesController(IClassRepository classRepository,
                                  ICourseRepository courseRepository,
                                  ISessionRepository sessionRepository,
                                  IDoneSessionRepository doneSessionRepository,
                                  UserManager<ApplicationUser> userManager,
-                                 INotificationRepository notificationRepository)
+                                 INotificationRepository notificationRepository,
+                                 ITranslator translator)
         {
             _classRepository = classRepository;
             _courseRepository = courseRepository;
@@ -35,25 +37,27 @@ namespace E_Learning.Controllers
             _notificationRepository = notificationRepository;
             _sessionRepository = sessionRepository;
             _doneSessionRepository = doneSessionRepository;
+            _translator = translator;
         }
 
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult CreateClass([FromBody] Class cls)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (string.IsNullOrEmpty(cls.Name_EN) || cls.CourseId == null)
                 {
-                    errorMessages.Add("Class name and course Id are required to create class.");
+                    errorMessages.Add(_translator.GetTranslation("VALIDATION.CLASSNAME_COURSEID_REQUIRED", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
                 if (_classRepository.IsExistsInCourse(cls.CourseId.Value))
                 {
-                    errorMessages.Add("This course already has a class.");
+                    errorMessages.Add(_translator.GetTranslation("CLASSES.COURSE_HAS_CLASS", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -61,8 +65,7 @@ namespace E_Learning.Controllers
                 var course = _courseRepository.FindById(cls.CourseId.Value);
                 if (course == null)
                 {
-                    errorMessages.Add("Error 404. Could not find course.");
-                    return BadRequest(new { errors = errorMessages });
+                    return NotFound();
                 }
 
                 var newCls = new Class()
@@ -77,29 +80,30 @@ namespace E_Learning.Controllers
 
                 if (createdClass == null)
                 {
-                    errorMessages.Add("Error creating class.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
                 return Ok(new { course = ResponseGenerator.GenerateCourseResponse(course, true) });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("enroll")]
         public async Task<IActionResult> EnrollInClass([FromBody] ClassUser classUser, [FromQuery] string action, [FromQuery] string userId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (string.IsNullOrEmpty(classUser.ClassId) || classUser.UserId == null)
                 {
-                    errorMessages.Add("Error joining class.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -108,7 +112,7 @@ namespace E_Learning.Controllers
 
                 if (cls == null || member == null)
                 {
-                    errorMessages.Add("Error joining class.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
                 if (action == "enroll")
@@ -170,23 +174,24 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedClass = ResponseGenerator.GenerateClassResponse(cls, isAdmin) });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPut("set-current-session")]
         public async Task<IActionResult> SetCurrentSession([FromBody] ClassUser classUser)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (string.IsNullOrEmpty(classUser.ClassId) || classUser.UserId == null || classUser.CurrentSessionId == null)
                 {
-                    errorMessages.Add("An error occured. Please try again later.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -195,7 +200,7 @@ namespace E_Learning.Controllers
 
                 if (cls == null || member == null)
                 {
-                    errorMessages.Add("An error occured. Invalid data.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -208,7 +213,7 @@ namespace E_Learning.Controllers
 
                 if (enrollement == null || session == null)
                 {
-                    errorMessages.Add("An error occured. Invalid data.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -220,17 +225,18 @@ namespace E_Learning.Controllers
 
                 return Ok(true);
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("non-members")]
         public IActionResult GetNonMembers([FromQuery] string classId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -254,9 +260,9 @@ namespace E_Learning.Controllers
                 return Ok(new { nonMembers  });
 
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

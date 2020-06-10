@@ -10,7 +10,9 @@ namespace E_Learning.Models
     {
         public long Id { get; set; }
         public string Text_EN { get; set; }
+        public string Text_FR { get; set; }
         public string Slug_EN { get; set; }
+        public string Slug_FR { get; set; }
         public string ImagePath { get; set; }
 
         [JsonIgnore]

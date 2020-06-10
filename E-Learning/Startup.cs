@@ -97,6 +97,8 @@ namespace E_Learning
                 };
             });
 
+            services.AddScoped<ICountryRepository, SqlCountryRepository>();
+            services.AddScoped<IAboutRepository, SqlAboutRepository>();
             services.AddScoped<ICategoryRepository, SqlCategoryRepository>();
             services.AddScoped<IMessageRepository, SqlMessageRepository>();
             services.AddScoped<IEmailMessageRepository, SqlEmailMessageRepository>();
@@ -119,6 +121,8 @@ namespace E_Learning
             services.AddScoped<IReportRepository, SqlReportRepository>();
             services.AddScoped<IQuizRepository, SqlQuizRepository>();
             services.AddScoped<IUserQuizRepository, SqlUserQuizRepository>();
+
+            services.AddSingleton<ITranslator, Translator>();
 
 
             //services.AddMvc(options =>

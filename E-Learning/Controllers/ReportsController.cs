@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using E_Learning.Emails;
+using E_Learning.Helpers;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -18,18 +19,22 @@ namespace E_Learning.Controllers
     {
         private readonly IReportRepository _reportRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITranslator _translator;
 
         public ReportsController(IReportRepository reportRepository,
-                                 UserManager<ApplicationUser> userManager)
+                                 UserManager<ApplicationUser> userManager,
+                                  ITranslator translator)
         {
             _reportRepository = reportRepository;
             _userManager = userManager;
+            _translator = translator;
         }
 
         [AllowAnonymous]
         [HttpPost("report-bug")]
         public async Task<IActionResult> ReportBug([FromBody] Report report)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -41,7 +46,7 @@ namespace E_Learning.Controllers
                     || string.IsNullOrEmpty(report.Description)
                     || !severityLevels.Contains(report.SeverityLevel.Value))
                 {
-                    errorMessages.Add("Error reporting bug. Please try again.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -69,23 +74,25 @@ namespace E_Learning.Controllers
 
                 if(createdReport == null)
                 {
-                    errorMessages.Add("Error reporting bug. Please try again.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
 
                 return Ok(new { createdReport });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult GetReports([FromQuery] string type)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -102,17 +109,19 @@ namespace E_Learning.Controllers
 
                 return Ok(new { reports });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
 
         }
 
+        [Authorize]
         [HttpGet("by-user")]
         public IActionResult GetReportsByUserId([FromQuery] string userId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -120,7 +129,7 @@ namespace E_Learning.Controllers
 
                 if (string.IsNullOrEmpty(userId))
                 {
-                    errorMessages.Add("Error fetching reports.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -130,17 +139,19 @@ namespace E_Learning.Controllers
 
                 return Ok(new { reports });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
 
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("mark-report-seen")]
         public IActionResult MarkReportSeen([FromBody] Report report)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -152,25 +163,26 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedReport });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
 
         }
 
-
+        [Authorize]
         [HttpPut("mark-reply-seen")]
         public IActionResult MarkReplySeen([FromBody] Report report)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 var rpt = _reportRepository.FindByID(report.Id);
                 if(report.UserId != rpt.UserId)
                 {
-                    errorMessages.Add("Error. Cannot mark this reply as seen");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -180,17 +192,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedReport });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
 
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("reply-report")]
         public IActionResult ReplyToReport([FromBody] Report report)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -205,20 +218,22 @@ namespace E_Learning.Controllers
                 try
                 {
                     string To = rpt.UserEmail;
-                    string Subject = "Report follow up";
+                    string Subject = _translator.GetTranslation("REPORTS.REPLY_EMAIL_SUBJECT", lang);
                     string Body = rpt.ReplyMessage;
                     var email = new Email(To, Subject, Body);
                     email.Send();
                 }
                 catch
                 {
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
+                    return BadRequest(new { errors = errorMessages });
                 }
 
                 return Ok(new { updatedReport });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
 

@@ -28,18 +28,22 @@ namespace E_Learning.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppSettings _appSettings;
         private IMapper _mapper;
+        private readonly ITranslator _translator;
+
 
         public AccountController(UserManager<ApplicationUser> userManager,
                                     RoleManager<IdentityRole> roleManager,
                                     SignInManager<ApplicationUser> signInManager,
                                     IOptions<AppSettings> appSettings,
-                                    IMapper mapper)
+                                    IMapper mapper,
+                                    ITranslator translator)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _appSettings = appSettings.Value;
             _mapper = mapper;
+            _translator = translator;
         }
 
      
@@ -48,29 +52,30 @@ namespace E_Learning.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody]RegUserDto userDto)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             if (string.IsNullOrEmpty(userDto.FirstName))
-                errorMessages.Add("First name is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.FIRSTNAME_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.LastName))
-                errorMessages.Add("Last name is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.LASTNAME_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.Country))
-                errorMessages.Add("Country is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.COUNTRY_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.Gender))
-                errorMessages.Add("Gender is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.GENDER_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.Email))
-                errorMessages.Add("Email is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.EMAIL_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.Password))
-                errorMessages.Add("Password is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.PASSWORD_REQUIRED", lang));
 
             if (userDto.Password != userDto.ConfirmPassword)
             {
-                errorMessages.Add("Passwords do not match");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.PASSWORDS_MATCH", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }
@@ -115,8 +120,8 @@ namespace E_Learning.Controllers
 
                             var confirmationLink = "http:/localhost:44383/security/email-confirmation?userId=" + user.Id + "&token=" + verificationToken.ToString();
                             string To = user.Email;
-                            string Subject = "Confirm your email";
-                            string Body = "Please click on the link below to confirm your email: " + confirmationLink;
+                            string Subject = _translator.GetTranslation("ACCOUNT.REGISTER_EMAIL_SUBJECT", lang);
+                            string Body = _translator.GetTranslation("ACCOUNT.REGISTER_EMAIL_MESSAGE", lang) + " : " + $"<br><a href=\"{confirmationLink}\"> {confirmationLink}</a>";
                             Email email = new Email(To, Subject, Body);
                             email.Send();
                         }
@@ -124,26 +129,23 @@ namespace E_Learning.Controllers
                         return Ok(new { status = "User Created" });
                     }
 
-                    foreach (var error in addToRoleResult.Errors)
-                    {
-                        errorMessages.Add(error.Description);
-                    }
+
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
+                    
 
                     return BadRequest(new { errors = errorMessages });
                 }
 
-                foreach (var error in result.Errors)
-                {
-                    errorMessages.Add(error.Description);
-                }
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }
-            catch (Exception ex)
+            catch 
             {
                 // return error message if there was an exception
 
-                errorMessages.Add(ex.Message);
+                //errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }
@@ -154,12 +156,17 @@ namespace E_Learning.Controllers
         public async Task<IActionResult> Authenticate([FromBody]UserDto userDto)
         {
             var errorMessages = new List<string>();
+            var lang = Request.Headers["language"].ToString();
 
             if (string.IsNullOrEmpty(userDto.Email))
-                errorMessages.Add("Email is required");
+            {
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.EMAIL_REQUIRED", lang));
+            }
 
             if (string.IsNullOrEmpty(userDto.Password))
-                errorMessages.Add("Password is required");
+            {
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.PASSWORD_REQUIRED", lang));
+            }
 
             if(errorMessages.Count > 0)
                 return BadRequest(new { errors = errorMessages });
@@ -169,24 +176,26 @@ namespace E_Learning.Controllers
 
             if(user != null && !user.IsActive)
             {
-                errorMessages.Add("Your account is deactivated. Please contact website administrator");
+                errorMessages.Add(_translator.GetTranslation("ACCOUNT.DEACTIVATED", lang));
+               
                 return BadRequest(new { errors = errorMessages });
             }
 
             if (user != null && (await _userManager.CheckPasswordAsync(user, userDto.Password)) && !user.EmailConfirmed)
             {
-
-                errorMessages.Add("Email not confirmed.");
+                errorMessages.Add(_translator.GetTranslation("ACCOUNT.EMAIL_NOT_CONFIRMED", lang));
+                
                 return BadRequest(new { errors = errorMessages });
             }
-
+            
 
             var result = await _signInManager.PasswordSignInAsync(userDto.Email, userDto.Password, false, false);
 
             if (!result.Succeeded)
             {
+                errorMessages.Add(_translator.GetTranslation("ACCOUNT.INVALID_USERNAME_PASSWORD", lang));
+               
 
-                errorMessages.Add("Invalid username or password");
                 return BadRequest(new { errors = errorMessages });
             }
 
@@ -234,11 +243,12 @@ namespace E_Learning.Controllers
         [HttpPost("confirm-email")]
         public async Task<IActionResult> ConfirmEmail([FromBody]ConfirmEmailDto confirmEmailDto)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             if (confirmEmailDto.userId == null || confirmEmailDto.token == null)
             {
-                errorMessages.Add("User not found");
+                errorMessages.Add(_translator.GetTranslation("ACCOUNT.USER_NOT_FOUND", lang));
                 return BadRequest(new { errors = errorMessages });
             }
 
@@ -246,7 +256,7 @@ namespace E_Learning.Controllers
 
             if (user == null)
             {
-                errorMessages.Add("User not found");
+                errorMessages.Add(_translator.GetTranslation("ACCOUNT.USER_NOT_FOUND", lang));
                 return BadRequest(new { errors = errorMessages });
             }
 
@@ -257,10 +267,7 @@ namespace E_Learning.Controllers
                 return Ok(true);
             }
 
-            foreach (var error in result.Errors)
-            {
-                errorMessages.Add(error.Description);
-            }
+            errorMessages.Add(_translator.GetTranslation("ERROR", lang));
 
             return BadRequest(new { errors = errorMessages });
         }
@@ -269,57 +276,78 @@ namespace E_Learning.Controllers
         [HttpPost("resend-confirmation")]
         public async Task<IActionResult> ResendConfirmationLink([FromBody] UserDto userDto)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
+
             if (string.IsNullOrEmpty(userDto.Email))
-                errorMessages.Add("Email is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.EMAIL_REQUIRED", lang));
 
             if (errorMessages.Count > 0)
                 return BadRequest(new { errors = errorMessages });
 
-            var user = await _userManager.FindByEmailAsync(userDto.Email);
-
-            var verificationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-
-            var confirmationLink = "http:/localhost:44383/security/email-confirmation?userId=" + user.Id + "&token=" + verificationToken.ToString();
-            string To = user.Email;
-            string Subject = "Confirm your email";
-            string Body = "Please click on the link below to confirm your email: " + confirmationLink;
-            Email email = new Email(To, Subject, Body);
-            email.Send();
-
-            return Ok(true);
-        }
-
-        [AllowAnonymous]
-        [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] UserDto userDto)
-        {
-            var errorMessages = new List<string>();
-            if (string.IsNullOrEmpty(userDto.Email))
-                errorMessages.Add("Email is required");
-
-            if (errorMessages.Count > 0)
-                return BadRequest(new { errors = errorMessages });
-
-
-            var user = await _userManager.FindByEmailAsync(userDto.Email);
-
-            if(user != null && await _userManager.IsEmailConfirmedAsync(user))
+            try
             {
-                var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var resetPwdLink = "http:/localhost:44383/security/reset-password?email=" + user.Email + "&token=" + resetToken.ToString();
+                var user = await _userManager.FindByEmailAsync(userDto.Email);
+
+                var verificationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+
+                var confirmationLink = "http:/localhost:44383/security/email-confirmation?userId=" + user.Id + "&token=" + verificationToken.ToString();
                 string To = user.Email;
-                string Subject = "Reset Password";
-                string Body = "Please click on the link below to reset your password: " + resetPwdLink;
+                string Subject = _translator.GetTranslation("ACCOUNT.REGISTER_EMAIL_SUBJECT", lang);
+                string Body = _translator.GetTranslation("ACCOUNT.REGISTER_EMAIL_MESSAGE", lang) + " : " + $"<br><a href=\"{confirmationLink}\"> {confirmationLink}</a>";
                 Email email = new Email(To, Subject, Body);
                 email.Send();
 
                 return Ok(true);
 
             }
+            catch
+            {
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
+                return BadRequest(new { errors = errorMessages });
+            }
+        }
 
-            errorMessages.Add("Cannot reset password. please confirm your email address.");
+        [AllowAnonymous]
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] UserDto userDto)
+        {
+            var lang = Request.Headers["language"].ToString();
+            var errorMessages = new List<string>();
+            if (string.IsNullOrEmpty(userDto.Email))
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.EMAIL_REQUIRED", lang));
+
+            if (errorMessages.Count > 0)
+                return BadRequest(new { errors = errorMessages });
+
+
+            var user = await _userManager.FindByEmailAsync(userDto.Email);
+
+            if (user != null && await _userManager.IsEmailConfirmedAsync(user))
+            {
+                try
+                {
+                    var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var resetPwdLink = "http:/localhost:44383/security/reset-password?email=" + user.Email + "&token=" + resetToken.ToString();
+                    string To = user.Email;
+                    string Subject = _translator.GetTranslation("ACCOUNT.RESET_PASSWORD_EMAIL_SUBJECT", lang);
+                    string Body = _translator.GetTranslation("ACCOUNT.RESET_PASSWORD_EMAIL_MESSAGE", lang) + " : " + $"<br><a href=\"{resetPwdLink}\"> {resetPwdLink}</a>";
+                    Email email = new Email(To, Subject, Body);
+                    email.Send();
+
+                    return Ok(true);
+
+                }
+                catch
+                {
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
+                    return BadRequest(new { errors = errorMessages });
+                }
+
+            }
+
+            errorMessages.Add(_translator.GetTranslation("ACCOUNT.CANNOT_RESET_PASSWORD", lang));
             return BadRequest(new { errors = errorMessages });
         }
 
@@ -327,10 +355,11 @@ namespace E_Learning.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             if (string.IsNullOrEmpty(resetPasswordDto.Password))
-                errorMessages.Add("Password is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.PASSWORD_REQUIRED", lang));
 
             if (errorMessages.Count > 0)
                 return BadRequest(new { errors = errorMessages });
@@ -338,7 +367,7 @@ namespace E_Learning.Controllers
 
             if (resetPasswordDto.Password != resetPasswordDto.ConfirmPassword)
             {
-                errorMessages.Add("Passwords do not match");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.PASSWORDS_MATCH", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }
@@ -353,38 +382,37 @@ namespace E_Learning.Controllers
                     return Ok(true);
                 }
 
-                
-                foreach(var error in result.Errors)
-                {
-                    errorMessages.Add(error.Description);
-                }
+
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
 
-            errorMessages.Add("Cannot reset password. Please try again.");
+            errorMessages.Add(_translator.GetTranslation("ERROR", lang));
             return BadRequest(new { errors = errorMessages });
         }
 
         [HttpPost("change-password")]
+        [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             if (string.IsNullOrEmpty(changePasswordDto.CurrentPassword))
-                errorMessages.Add("Password is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.PASSWORD_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(changePasswordDto.NewPassword))
-                errorMessages.Add("Password is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.PASSWORD_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(changePasswordDto.ConfirmPassword))
-                errorMessages.Add("Password is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.PASSWORD_REQUIRED", lang));
 
             if (errorMessages.Count > 0)
                 return BadRequest(new { errors = errorMessages });
 
             if (changePasswordDto.NewPassword != changePasswordDto.ConfirmPassword)
             {
-                errorMessages.Add("Passwords do not match");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.PASSWORDS_MATCH", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }
@@ -393,7 +421,8 @@ namespace E_Learning.Controllers
 
             if (!await _userManager.CheckPasswordAsync(user, changePasswordDto.CurrentPassword))
             {
-                errorMessages.Add("Current password is incorrect.");
+
+                errorMessages.Add(_translator.GetTranslation("ACCOUNT.CURRENT_PASSWORD_INCORRECT", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }
@@ -406,14 +435,12 @@ namespace E_Learning.Controllers
                     return Ok(new { result = true });
                 }
 
-                foreach (var error in result.Errors)
-                {
-                    errorMessages.Add(error.Description);
-                }
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
+
                 return BadRequest(new { errors = errorMessages });
             }
 
-            errorMessages.Add("Cannot reset password. Please try again.");
+            errorMessages.Add(_translator.GetTranslation("ERROR", lang));
             return BadRequest(new { errors = errorMessages });
         }
     }

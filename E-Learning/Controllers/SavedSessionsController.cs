@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using E_Learning.Helpers;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -18,26 +19,31 @@ namespace E_Learning.Controllers
         private readonly ISavedSessionRepository _savedSessionRepository;
         private readonly ISessionRepository _sessionRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITranslator _translator;
 
         public SavedSessionsController(ISavedSessionRepository savedSessionRepository,
                                        ISessionRepository sessionRepository,
-                                       UserManager<ApplicationUser> userManager)
+                                       UserManager<ApplicationUser> userManager,
+                                       ITranslator translator)
         {
             _savedSessionRepository = savedSessionRepository;
             _sessionRepository = sessionRepository;
             _userManager = userManager;
+            _translator = translator;
         }
 
 
+        [Authorize]
         [HttpGet]
         public IActionResult GetSavedSessions([FromQuery] string userId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (string.IsNullOrEmpty(userId))
                 {
-                    errorMessages.Add("Error fetching saved sessions");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -45,23 +51,24 @@ namespace E_Learning.Controllers
 
                 return Ok(new { savedSessions });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+               errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("sessions")]
         public IActionResult GetSavedSessions2([FromQuery] string userId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (string.IsNullOrEmpty(userId))
                 {
-                    errorMessages.Add("Error fetching saved sessions");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -81,10 +88,12 @@ namespace E_Learning.Controllers
                                 s.Id,
                                 s.Order,
                                 s.Title_EN,
+                                s.Title_FR,
                                 s.Duration,
                                 ss.SaveDateTime,
                                 ss.SessionUrl,
-                                courseTitle_EN = s.Section.Course.Title_EN
+                                courseTitle_EN = s.Section.Course.Title_EN,
+                                courseTitle_FR = s.Section.Course.Title_FR
                             });
                         }
                     }
@@ -93,23 +102,24 @@ namespace E_Learning.Controllers
 
                 return Ok(new { sessions });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+               errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> SaveSession([FromBody] SavedSession savedSession)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if(savedSession.SessionId  == null || string.IsNullOrEmpty(savedSession.UserId))
                 {
-                    errorMessages.Add("Error saving session");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -118,7 +128,7 @@ namespace E_Learning.Controllers
 
                 if (user == null || session == null)
                 {
-                    errorMessages.Add("Error saving session");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -137,37 +147,38 @@ namespace E_Learning.Controllers
 
                 return Ok(new { createdSavedSession });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+               errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
-
+        [Authorize]
         [HttpDelete]
         public IActionResult RemoveSession([FromQuery] long? id)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (id == null)
                 {
-                    errorMessages.Add("Error removing session from saved sessions");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
                 var deletedSession = _savedSessionRepository.Delete(id.Value);
                 if(deletedSession == null)
                 {
-                    errorMessages.Add("Error removing session from saved sessions");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
                 return Ok(new { deletedSessionId = deletedSession.Id });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+               errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

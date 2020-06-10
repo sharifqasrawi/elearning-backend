@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using E_Learning.Hubs;
+using E_Learning.Helpers;
 
 namespace E_Learning.Controllers
 {
@@ -19,19 +20,24 @@ namespace E_Learning.Controllers
         private readonly IAppRatingRepository _appRatingRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHubContext<SignalHub> _hubContext;
+        private readonly ITranslator _translator;
 
         public AppRatingsController(IAppRatingRepository appRatingRepository,
                                     UserManager<ApplicationUser> userManager,
-                                    IHubContext<SignalHub> hubContext)
+                                    IHubContext<SignalHub> hubContext,
+                                    ITranslator translator)
         {
             _appRatingRepository = appRatingRepository;
             _userManager = userManager;
             _hubContext = hubContext;
+            _translator = translator;
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> RateApp([FromBody] AppRating   appRating)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -39,7 +45,7 @@ namespace E_Learning.Controllers
 
                 if (user == null)
                 {
-                    errorMessages.Add("Error rating application.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -48,7 +54,7 @@ namespace E_Learning.Controllers
 
                 if (!allowedValues.Contains(appRating.Value))
                 {
-                    errorMessages.Add("Error rating application.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -80,7 +86,7 @@ namespace E_Learning.Controllers
 
                 if (createdAppRating == null)
                 {
-                    errorMessages.Add("Error rating Application.");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -98,9 +104,9 @@ namespace E_Learning.Controllers
               
                 return Ok(new { ratings });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
@@ -109,6 +115,7 @@ namespace E_Learning.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAppRatings([FromQuery] string userId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -156,9 +163,9 @@ namespace E_Learning.Controllers
 
                 return Ok(new { ratings });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

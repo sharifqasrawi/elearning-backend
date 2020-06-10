@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace E_Learning.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
@@ -21,65 +21,91 @@ namespace E_Learning.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppSettings _appSettings;
+        private readonly ITranslator _translator;
 
         public UsersController(UserManager<ApplicationUser> userManager,
                                 RoleManager<IdentityRole> roleManager,
                                     SignInManager<ApplicationUser> signInManager,
-                                    IOptions<AppSettings> appSettings)
+                                    IOptions<AppSettings> appSettings,
+                                    ITranslator translator)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _appSettings = appSettings.Value;
+            _translator = translator;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult GetUsers()
         {
-            var users = _userManager.Users
-                .Select(u => new {
-                    u.Id,
-                    u.FirstName,
-                    u.LastName,
-                    u.Email,
-                    u.Country,
-                    u.Gender,
-                    u.EmailConfirmed,
-                    u.IsAdmin,
-                    u.IsAuthor ,
-                    u.CreatedAt,
-                    u.IsActive
-                })
-                .OrderBy(u => u.FirstName);
-            return Ok(new { users });
+            var lang = Request.Headers["language"].ToString();
+            var errorMessages = new List<string>();
+            try
+            {
+
+                var users = _userManager.Users
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.FirstName,
+                        u.LastName,
+                        u.Email,
+                        u.Country,
+                        u.Gender,
+                        u.EmailConfirmed,
+                        u.IsAdmin,
+                        u.IsAuthor,
+                        u.CreatedAt,
+                        u.IsActive
+                    })
+                    .OrderBy(u => u.FirstName);
+                return Ok(new { users });
+            }
+            catch
+            {
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
+                return BadRequest(new { errors = errorMessages });
+            }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("search")]
         public IActionResult SearchUsers([FromQuery] string searchKey)
         {
-            var users = _userManager.Users
-                .Select(u => new
-                {
-                    u.Id,
-                    u.FirstName,
-                    u.LastName,
-                    u.Email,
-                    u.Country,
-                    u.Gender,
-                    u.EmailConfirmed,
-                    u.IsAdmin,
-                    u.IsAuthor,
-                    u.CreatedAt,
-                    u.IsActive
-                })
-                .Where(u => u.FirstName.Contains(searchKey)
-                           || u.LastName.Contains(searchKey)
-                           || u.Email.Contains(searchKey)
-                           || string.IsNullOrEmpty(searchKey))
-                .OrderBy(u => u.FirstName);
+            var lang = Request.Headers["language"].ToString();
+            var errorMessages = new List<string>();
+            try
+            {
+                var users = _userManager.Users
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.FirstName,
+                        u.LastName,
+                        u.Email,
+                        u.Country,
+                        u.Gender,
+                        u.EmailConfirmed,
+                        u.IsAdmin,
+                        u.IsAuthor,
+                        u.CreatedAt,
+                        u.IsActive
+                    })
+                    .Where(u => u.FirstName.Contains(searchKey)
+                               || u.LastName.Contains(searchKey)
+                               || u.Email.Contains(searchKey)
+                               || string.IsNullOrEmpty(searchKey))
+                    .OrderBy(u => u.FirstName);
 
-            return Ok(new { users });
+                return Ok(new { users });
+            }
+            catch
+            {
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
+                return BadRequest(new { errors = errorMessages });
+            }
         }
 
 
@@ -87,84 +113,102 @@ namespace E_Learning.Controllers
         [HttpGet("user")]
         public async Task<IActionResult> GetUser([FromQuery] string id)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
-            var user = await _userManager.FindByIdAsync(id);
-
-            if (user == null)
+            try
             {
-                errorMessages.Add("User not found");
+                var user = await _userManager.FindByIdAsync(id);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                var userData = new
+                {
+                    id = user.Id,
+                    firstName = user.FirstName,
+                    lastName = user.LastName,
+                    username = user.UserName,
+                    email = user.Email,
+                    country = user.Country,
+                    gender = user.Gender,
+                    isAdmin = user.IsAdmin,
+                    isAuthor = user.IsAuthor,
+                    createdAt = user.CreatedAt,
+                    isActive = user.IsActive,
+                    emailConfirmed = user.EmailConfirmed
+                };
+
+                return Ok(new { user = userData });
+            }
+            catch
+            {
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
-
-            var userData = new
-            {
-                id = user.Id,
-                firstName = user.FirstName,
-                lastName = user.LastName,
-                username = user.UserName,
-                email = user.Email,
-                country = user.Country,
-                gender = user.Gender,
-                isAdmin = user.IsAdmin,
-                isAuthor = user.IsAuthor,
-                createdAt = user.CreatedAt,
-                isActive = user.IsActive,
-                emailConfirmed = user.EmailConfirmed
-            };
-
-            return Ok(new { user = userData });
         }
 
         [AllowAnonymous]
         [HttpGet("user-roles")]
         public async Task<IActionResult> GetUserRoles([FromQuery] string id)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
-
-            var user = await _userManager.FindByIdAsync(id);
-
-            if (user == null)
+            try
             {
-                errorMessages.Add("User not found");
+
+                var user = await _userManager.FindByIdAsync(id);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                var userData = new
+                {
+                    isAdmin = user.IsAdmin,
+                    isAuthor = user.IsAuthor
+                };
+
+                return Ok(new { userRoles = userData });
+            }
+            catch
+            {
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
-
-            var userData = new
-            {
-                isAdmin = user.IsAdmin,
-                isAuthor = user.IsAuthor
-            };
-
-            return Ok(new { userRoles = userData });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("create-user")]
         public async Task<IActionResult> CreateUser([FromBody]RegUserDto userDto)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             if (string.IsNullOrEmpty(userDto.FirstName))
-                errorMessages.Add("First name is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.FIRSTNAME_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.LastName))
-                errorMessages.Add("Last name is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.LASTNAME_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.Country))
-                errorMessages.Add("Country is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.COUNTRY_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.Gender))
-                errorMessages.Add("Gender is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.GENDER_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.Email))
-                errorMessages.Add("Email is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.EMAIL_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.Password))
-                errorMessages.Add("Password is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.PASSWORD_REQUIRED", lang));
 
             if (userDto.Password != userDto.ConfirmPassword)
             {
-                errorMessages.Add("Passwords do not match");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.PASSWORDS_MATCH", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }
@@ -223,10 +267,7 @@ namespace E_Learning.Controllers
                         var addToAdminResult = await _userManager.AddToRoleAsync(user, "Admin");
                         if(!addToAdminResult.Succeeded)
                         {
-                            foreach (var error in addToAdminResult.Errors)
-                            {
-                                errorMessages.Add(error.Description);
-                            }
+                            errorMessages.Add(_translator.GetTranslation("ERROR", lang));
 
                             return BadRequest(new { errors = errorMessages });
                         }
@@ -236,11 +277,7 @@ namespace E_Learning.Controllers
                         var addToAuthorResult = await _userManager.AddToRoleAsync(user, "Author");
                         if (!addToAuthorResult.Succeeded)
                         {
-                            foreach (var error in addToAuthorResult.Errors)
-                            {
-                                errorMessages.Add(error.Description);
-                            }
-
+                            errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                             return BadRequest(new { errors = errorMessages });
                         }
                     }
@@ -249,11 +286,7 @@ namespace E_Learning.Controllers
                         var addToUserResult = await _userManager.AddToRoleAsync(user, "User");
                         if (!addToUserResult.Succeeded)
                         {
-                            foreach (var error in addToUserResult.Errors)
-                            {
-                                errorMessages.Add(error.Description);
-                            }
-
+                            errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                             return BadRequest(new { errors = errorMessages });
                         }
 
@@ -277,26 +310,24 @@ namespace E_Learning.Controllers
                     return Ok(new { user = responseData });
                 }
 
-                foreach (var error in result.Errors)
-                {
-                    errorMessages.Add(error.Description);
-                }
-
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
-            catch (Exception ex)
+            catch 
             {
                 // return error message if there was an exception
 
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("act-deact")]
         public async Task<IActionResult> ActivateDeactivateUser([FromBody] UserActivatedDeactivateDto userActivatedDeactivateDto)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -323,42 +354,43 @@ namespace E_Learning.Controllers
                     return Ok(new { userId = user.Id, isActive = user.IsActive });
                 }
 
-                foreach(var error in result.Errors)
-                {
-                    errorMessages.Add(error.Description);
-                }
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
 
             }
-            catch (Exception ex)
+            catch 
             {
                 // return error message if there was an exception
 
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("update-user")]
         public  async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto userDto)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             if (string.IsNullOrEmpty(userDto.FirstName))
-                errorMessages.Add("First name is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.FIRSTNAME_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.LastName))
-                errorMessages.Add("Last name is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.LASTNAME_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.Country))
-                errorMessages.Add("Country is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.COUNTRY_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.Gender))
-                errorMessages.Add("Gender is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.GENDER_REQUIRED", lang));
 
             if (string.IsNullOrEmpty(userDto.Email))
-                errorMessages.Add("Email is required");
+                errorMessages.Add(_translator.GetTranslation("VALIDATION.EMAIL_REQUIRED", lang));
+
+          
 
             if (errorMessages.Count > 0)
                 return BadRequest(new { errors = errorMessages });
@@ -391,10 +423,7 @@ namespace E_Learning.Controllers
                         var addToAdminResult = await _userManager.AddToRoleAsync(user, "Admin");
                         if (!addToAdminResult.Succeeded)
                         {
-                            foreach (var error in addToAdminResult.Errors)
-                            {
-                                errorMessages.Add(error.Description);
-                            }
+                            errorMessages.Add(_translator.GetTranslation("ERROR", lang));
 
                             return BadRequest(new { errors = errorMessages });
                         }
@@ -408,11 +437,7 @@ namespace E_Learning.Controllers
                         var addToAuthorResult = await _userManager.AddToRoleAsync(user, "Author");
                         if (!addToAuthorResult.Succeeded)
                         {
-                            foreach (var error in addToAuthorResult.Errors)
-                            {
-                                errorMessages.Add(error.Description);
-                            }
-
+                            errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                             return BadRequest(new { errors = errorMessages });
                         }
                     }
@@ -438,26 +463,25 @@ namespace E_Learning.Controllers
 
                     return Ok(new { user = response });
                 }
-
-                foreach (var error in result.Errors)
-                {
-                    errorMessages.Add(error.Description);
-                }
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
-            catch (Exception ex)
+            catch 
             {
                 // return error message if there was an exception
 
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+
+        [Authorize]
         [HttpPut("update-profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserDto userDto)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             if (string.IsNullOrEmpty(userDto.FirstName))
@@ -514,23 +538,21 @@ namespace E_Learning.Controllers
                     return Ok(new { user = response });
                 }
 
-                foreach (var error in result.Errors)
-                {
-                    errorMessages.Add(error.Description);
-                }
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete-user")]
         public async Task<IActionResult> DeleteUser([FromQuery] string userId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -546,17 +568,14 @@ namespace E_Learning.Controllers
                     return Ok(new { userId = user.Id });
                 }
 
-                foreach (var error in result.Errors)
-                {
-                    errorMessages.Add(error.Description);
-                }
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
-            catch (Exception ex)
+            catch 
             {
                 // return error message if there was an exception
 
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
 
                 return BadRequest(new { errors = errorMessages });
             }

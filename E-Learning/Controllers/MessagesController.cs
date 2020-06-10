@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using E_Learning.Emails;
+using E_Learning.Helpers;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -17,34 +18,41 @@ namespace E_Learning.Controllers
     {
         private readonly IMessageRepository _messageRepository;
         private readonly IEmailMessageRepository _emailMessageRepository;
+        private readonly ITranslator _translator;
 
-        public MessagesController(IMessageRepository messageRepository, IEmailMessageRepository emailMessageRepository)
+        public MessagesController(IMessageRepository messageRepository, 
+                                  IEmailMessageRepository emailMessageRepository,
+                                   ITranslator translator)
         {
             _messageRepository = messageRepository;
             _emailMessageRepository = emailMessageRepository;
+            _translator = translator;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult GetMessages()
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 var messages = _messageRepository.GetMessages();
 
-                return Ok(new { messages = messages });
+                return Ok(new { messages });
             }
-            catch(Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpGet("message")]
         public IActionResult GetMessage([FromQuery] long id)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -52,11 +60,11 @@ namespace E_Learning.Controllers
                 if (message == null)
                     return NotFound();
 
-                return Ok(new { message = message });
+                return Ok(new {  message });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
@@ -65,6 +73,7 @@ namespace E_Learning.Controllers
         [HttpPost("send")]
         public IActionResult Send([FromBody] Message message)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -82,16 +91,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { message = createdMessage });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete")]
         public IActionResult DeleteMessage([FromQuery] long msgId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -106,16 +117,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { deletedMsgId = message.Id });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("change-seen")]
         public IActionResult ChangeSeen([FromQuery] long msgId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -134,18 +147,20 @@ namespace E_Learning.Controllers
 
                 var updatedMessage = _messageRepository.Update(message);
 
-                return Ok(new { updatedMessage = updatedMessage });
+                return Ok(new {  updatedMessage });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("sent-emails")]
         public IActionResult GetEmailMessages()
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -153,16 +168,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { emailMessages = messages });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("send-email")]
         public IActionResult SendEmail([FromBody] EmailMessage message)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -179,16 +196,16 @@ namespace E_Learning.Controllers
 
                     return Ok(new { emailMessage = createdMessage });
                 }
-                catch (Exception ex)
+                catch 
                 {
-                    errorMessages.Add(ex.Message);
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

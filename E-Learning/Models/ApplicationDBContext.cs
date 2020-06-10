@@ -15,6 +15,8 @@ namespace E_Learning.Models
 
         }
 
+        public DbSet<Country> Countries { get; set; }
+        public DbSet<About> Abouts { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Directory> Directories { get; set; }

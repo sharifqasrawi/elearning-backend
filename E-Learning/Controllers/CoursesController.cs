@@ -24,13 +24,15 @@ namespace E_Learning.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IClassRepository _classRepository;
+        private readonly ITranslator _translator;
         public CoursesController(ICourseRepository courseRepository,
                                  ITagRepository tagRepository,
                                  ISectionRepository sectionRepository,
                                  ISessionRepository sessionRepository,
                                  UserManager<ApplicationUser> userManager,
                                  ICategoryRepository categoryRepository,
-                                 IClassRepository classRepository)
+                                 IClassRepository classRepository,
+                                 ITranslator translator)
         {
             _courseRepository = courseRepository;
             _tagRepository = tagRepository;
@@ -39,12 +41,14 @@ namespace E_Learning.Controllers
             _sectionRepository = sectionRepository;
             _sessionRepository = sessionRepository;
             _classRepository = classRepository;
+            _translator = translator;
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult GetCourses([FromQuery] int? categoryId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -66,17 +70,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { courses = response });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpGet("course")]
         public IActionResult GetCourse([FromQuery] long id)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -86,16 +91,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { course = response });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("deleted")]
         public IActionResult GetDeletedCourses()
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -113,16 +120,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { courses = response });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("create-course")]
         public IActionResult CreateCourse([FromBody] Course course)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             try
@@ -134,9 +143,13 @@ namespace E_Learning.Controllers
                 var newCourse = new Course()
                 {
                     Title_EN = course.Title_EN,
+                    Title_FR = course.Title_FR ?? course.Title_EN,
                     Slug_EN = slugHelper.GenerateSlug(course.Title_EN),
+                    Slug_FR = course.Title_FR != null ? slugHelper.GenerateSlug(course.Title_FR) : slugHelper.GenerateSlug(course.Title_EN),
                     Description_EN = course.Description_EN,
+                    Description_FR = course.Description_FR ?? course.Description_EN,
                     Prerequisites_EN = course.Prerequisites_EN,
+                    Prerequisites_FR = course.Prerequisites_FR ?? course.Prerequisites_EN,
                     Duration = course.Duration,
                     ImagePath = course.ImagePath,
                     IsFree = course.IsFree == null ? false : course.IsFree.Value,
@@ -170,12 +183,12 @@ namespace E_Learning.Controllers
                     return Ok(new { createdCourse = response });
                 }
 
-                errorMessages.Add("Error creating course");
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new
                 {
                     errors = errorMessages
@@ -183,9 +196,11 @@ namespace E_Learning.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("update-course")]
         public IActionResult UpdateCourse([FromBody] Course course)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             try
@@ -196,9 +211,13 @@ namespace E_Learning.Controllers
 
 
                 newCourse.Title_EN = course.Title_EN;
+                newCourse.Title_FR = course.Title_FR ?? course.Title_EN;
                 newCourse.Slug_EN = new SlugHelper().GenerateSlug(course.Title_EN);
+                newCourse.Slug_FR = course.Title_FR  != null ?  new SlugHelper().GenerateSlug(course.Title_FR): new SlugHelper().GenerateSlug(course.Title_EN);
                 newCourse.Description_EN = course.Description_EN;
+                newCourse.Description_FR = course.Description_FR ?? course.Description_EN;
                 newCourse.Prerequisites_EN = course.Prerequisites_EN;
+                newCourse.Prerequisites_FR = course.Prerequisites_FR ?? course.Prerequisites_EN;
                 newCourse.Duration = course.Duration;
                 newCourse.ImagePath = course.ImagePath;
                 newCourse.IsFree = course.IsFree == null ? false : course.IsFree.Value;
@@ -226,19 +245,21 @@ namespace E_Learning.Controllers
                     return Ok(new { updatedCourse = response });
                 }
 
-                errorMessages.Add("Error updating course");
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("trash-restore-course")]
         public IActionResult TrashCourse([FromBody] Course course, [FromQuery] string action)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -260,16 +281,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedCourse = response });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("publish")]
         public IActionResult PublishCourse([FromBody] Course course, [FromQuery] string action)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -294,18 +317,20 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedCourse = response });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
         ////// Tags //////
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("tag-course")]
         public IActionResult AddTagToCourse([FromBody] CourseTag courseTag, [FromQuery] string action)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -339,102 +364,22 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedCourse = response });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
         ////// Sections //////
 
-        //[AllowAnonymous]
-        //[HttpPost("manage-section")]
-        //public IActionResult CreateSection([FromBody] Section section, [FromQuery] string action)
-        //{
-        //    var errorMessages = new List<string>();
-        //    try
-        //    {
-        //        var course = _courseRepository.FindById(section.Course.Id);
-        //        var courseSections = course.Sections;
 
-        //        if (action == "add")
-        //        {
-        //            var newSection = new Section()
-        //            {
-        //                Course = course,
-        //                Name_EN = section.Name_EN,
-        //                Slug_EN = new SlugHelper().GenerateSlug(section.Name_EN),
-        //                Order = section.Order,
-        //                CreatedAt = DateTime.Now,
-        //                UpdatedAt = DateTime.Now,
-        //                CreatedBy = section.CreatedBy,
-        //                UpdatedBy = section.UpdatedBy,
-        //                DeletedAt = null,
-        //                DeletedBy = null
-        //            };
-
-        //            var createdSection = _sectionRepository.Create(newSection);
-
-        //            //courseSections.Add(newSection);
-        //        }
-        //        else if(action == "remove")
-        //        {
-        //            var sec = courseSections.SingleOrDefault(s=> s.Id == section.Id);
-        //            _sectionRepository.Delete(sec.Id);
-        //            //courseSections.Remove(sec);
-        //        }
-        //        else if(action == "edit")
-        //        {
-        //            var sec = courseSections.SingleOrDefault(s => s.Id == section.Id);
-        //            sec.Name_EN = section.Name_EN;
-        //            sec.Slug_EN = new SlugHelper().GenerateSlug(section.Name_EN);
-        //            sec.UpdatedAt = DateTime.Now;
-        //            sec.UpdatedBy = section.UpdatedBy;
-
-        //            if(sec.Order != section.Order)
-        //            {
-        //                var oldOrder = sec.Order;
-
-        //                // Previous
-        //                var oldSec = courseSections.SingleOrDefault(s => s.Order == section.Order);
-        //                if (oldSec != null)
-        //                {
-        //                    oldSec.Order = oldOrder;
-        //                    var updatedOldSection = _sectionRepository.Update(oldSec);
-        //                }
-
-        //                // New
-        //                sec.Order = section.Order;
-
-        //            }
-
-        //            var updatedSection = _sectionRepository.Update(sec);
-        //        }
-
-        //        //course.Sections = courseSections;
-
-        //        //var updatedCourse = _courseRepository.Update(course);
-
-        //        var courseRes = _courseRepository.FindById(section.Course.Id);
-
-        //        var response = GenerateCourseResponse(courseRes);
-
-        //        return Ok( new { updatedCourse = response });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        errorMessages.Add(ex.Message);
-        //        return BadRequest(new { errors = errorMessages });
-        //    }
-        //}
-
-         
         /////// Sessions
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("edit-session")]
         public IActionResult CreateSession([FromBody] Session session, [FromQuery] string action)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             try
@@ -492,17 +437,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedCourse = response });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete-session")]
         public IActionResult DeleteSession( [FromQuery] long id)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
 
             try
@@ -516,17 +462,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedCourse = response });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("edit-session-content")]
         public IActionResult EditSessionContent([FromBody] SessionContent sessionContent, [FromQuery] string action)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -547,9 +494,9 @@ namespace E_Learning.Controllers
 
                 return Ok();
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

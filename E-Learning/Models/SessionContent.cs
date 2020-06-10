@@ -11,6 +11,7 @@ namespace E_Learning.Models
         public long Id { get; set; }
         public string Type { get; set; }
         public string Content { get; set; }
+        public string Content_FR { get; set; }
         public int Order { get; set; }
 
         [JsonIgnore]

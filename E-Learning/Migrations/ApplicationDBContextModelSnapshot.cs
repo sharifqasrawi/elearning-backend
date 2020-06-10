@@ -19,6 +19,48 @@ namespace E_Learning.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("E_Learning.Models.About", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Email1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Info")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Info_FR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title_FR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Website")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Abouts");
+                });
+
             modelBuilder.Entity("E_Learning.Models.Answer", b =>
                 {
                     b.Property<long>("Id")
@@ -48,6 +90,9 @@ namespace E_Learning.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Text_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -206,7 +251,13 @@ namespace E_Learning.Migrations
                     b.Property<string>("Slug")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -229,6 +280,9 @@ namespace E_Learning.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -305,6 +359,30 @@ namespace E_Learning.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("E_Learning.Models.Country", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("FlagPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name_FR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Countries");
+                });
+
             modelBuilder.Entity("E_Learning.Models.Course", b =>
                 {
                     b.Property<long>("Id")
@@ -330,6 +408,9 @@ namespace E_Learning.Migrations
                     b.Property<string>("Description_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Description_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
@@ -351,6 +432,9 @@ namespace E_Learning.Migrations
                     b.Property<string>("Prerequisites_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Prerequisites_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<float?>("Price")
                         .HasColumnType("real");
 
@@ -360,7 +444,13 @@ namespace E_Learning.Migrations
                     b.Property<string>("Slug_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -646,7 +736,13 @@ namespace E_Learning.Migrations
                     b.Property<string>("Slug_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Text_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -684,6 +780,9 @@ namespace E_Learning.Migrations
                     b.Property<string>("Description_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Description_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("Duration")
                         .HasColumnType("int");
 
@@ -702,6 +801,9 @@ namespace E_Learning.Migrations
                     b.Property<string>("Slug_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -709,6 +811,9 @@ namespace E_Learning.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("title_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("title_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -819,10 +924,16 @@ namespace E_Learning.Migrations
                     b.Property<string>("Name_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Name_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
                     b.Property<string>("Slug_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -869,7 +980,13 @@ namespace E_Learning.Migrations
                     b.Property<string>("Slug_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -893,6 +1010,9 @@ namespace E_Learning.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Content_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DeletedAt")
@@ -925,6 +1045,9 @@ namespace E_Learning.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

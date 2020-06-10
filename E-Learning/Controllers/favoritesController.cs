@@ -13,31 +13,37 @@ using Microsoft.AspNetCore.Mvc;
 namespace E_Learning.Controllers
 {
     [Route("[controller]")]
+    [Authorize]
     [ApiController]
     public class FavoritesController : ControllerBase
     {
         private readonly IFavoriteRepository _favoriteRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITranslator _translator;
 
         public FavoritesController(IFavoriteRepository favoriteRepository,
                                    ICourseRepository courseRepository,
-                                   UserManager<ApplicationUser> userManager)
+                                   UserManager<ApplicationUser> userManager,
+                                   ITranslator translator)
         {
             _favoriteRepository = favoriteRepository;
             _courseRepository = courseRepository;
             _userManager = userManager;
+            _translator = translator;
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult GetUserFavorites([FromQuery] string userId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (string.IsNullOrEmpty(userId))
                 {
-                    errorMessages.Add("Error fetching favorites");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -45,22 +51,24 @@ namespace E_Learning.Controllers
 
                 return Ok(new { favorites });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize]
         [HttpPost("add-course")]
         public async Task<IActionResult> AddCourseToFavorites([FromBody] Favorite favorite)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (string.IsNullOrEmpty(favorite.UserId) || favorite.CourseId == null)
                 {
-                    errorMessages.Add("Error adding course to favorites");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -70,7 +78,7 @@ namespace E_Learning.Controllers
 
                 if (user == null || course== null)
                 {
-                    errorMessages.Add("Error adding course to favorites");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -87,22 +95,24 @@ namespace E_Learning.Controllers
                 return Ok(new { createdFavorite });
 
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize]
         [HttpDelete("remove-course")]
         public IActionResult RemoveCourseFromFavorite([FromQuery] long? id)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (id == null)
                 {
-                    errorMessages.Add("Error removing course from favorites");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -110,28 +120,30 @@ namespace E_Learning.Controllers
 
                 if(deletedFavorite  == null)
                 {
-                    errorMessages.Add("Error removing course from favorites");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
                 return Ok(new { deletedFavoriteId = deletedFavorite.Id });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize]
         [HttpGet("courses")]
         public IActionResult GetUserFavoriteCourses([FromQuery] string userId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (string.IsNullOrEmpty(userId))
                 {
-                    errorMessages.Add("Error fetching favorite courses");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -151,9 +163,9 @@ namespace E_Learning.Controllers
 
                 return Ok(new { courses });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

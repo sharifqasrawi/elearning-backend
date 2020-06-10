@@ -10,6 +10,7 @@ namespace E_Learning.Models
     {
         public long Id { get; set; }
         public string Text_EN { get; set; }
+        public string Text_FR { get; set; }
         public string ImagePath { get; set; }
         public bool? IsCorrect { get; set; }
 

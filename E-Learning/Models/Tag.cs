@@ -9,6 +9,7 @@ namespace E_Learning.Models
     {
         public long Id { get; set; }
         public string Name { get; set; }
+        public string Name_FR { get; set; }
 
         public IList<CourseTag> CourseTags { get; set; }
     }

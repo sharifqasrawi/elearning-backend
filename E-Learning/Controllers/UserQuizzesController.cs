@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using E_Learning.Helpers;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -18,20 +19,24 @@ namespace E_Learning.Controllers
         private readonly IUserQuizRepository _userQuizRepository;
         private readonly IQuizRepository _quizRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITranslator _translator;
 
         public UserQuizzesController(IUserQuizRepository userQuizRepository,
                                      IQuizRepository quizRepository,
-                                     UserManager<ApplicationUser> userManager)
+                                     UserManager<ApplicationUser> userManager,
+                                     ITranslator translator)
         {
             _userQuizRepository = userQuizRepository;
             _quizRepository = quizRepository;
             _userManager = userManager;
+            _translator = translator;
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("start-quiz")]
         public async Task<IActionResult> StartQuiz([FromBody] UserQuiz userQuiz)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -40,7 +45,7 @@ namespace E_Learning.Controllers
 
                 if (user == null || quiz == null)
                 {
-                    errorMessages.Add("Error starting quiz");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -69,17 +74,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { startedQuiz });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("choose-answer")]
         public IActionResult ChooseAnswer([FromBody] UserQuizAnswer userQuizAnswer)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -89,7 +95,7 @@ namespace E_Learning.Controllers
 
                 if (userQuiz == null || question == null || answer == null)
                 {
-                    errorMessages.Add("Error selecting choice");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -122,23 +128,24 @@ namespace E_Learning.Controllers
 
                 return Ok(new { createdUserQuizAnswer });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("get-user-quiz")]
         public IActionResult GetUserQuiz([FromQuery] string userId, [FromQuery] long? quizId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (string.IsNullOrEmpty(userId) || quizId == null)
                 {
-                    errorMessages.Add("Error fetching data");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -148,25 +155,26 @@ namespace E_Learning.Controllers
 
                 return Ok(new { userQuiz, userQuizAnswers });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("submit-quiz")]
         public IActionResult SubmitQuiz([FromBody] UserQuiz userQuiz)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
-            //try
-            //{
+            try
+            {
                 var curUserQuiz = _userQuizRepository.FindByUserIdAndQuizId(userQuiz.UserId, userQuiz.QuizId);
                 
                 if (curUserQuiz == null)
                 {
-                    errorMessages.Add("Error submitting quiz");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -195,12 +203,12 @@ namespace E_Learning.Controllers
                 var updatedUserQuiz = _userQuizRepository.Update(curUserQuiz);
 
                 return Ok(new { updatedUserQuiz, userQuizAnswers });
-            //}
-            //catch (Exception ex)
-            //{
-            //    errorMessages.Add(ex.Message);
-            //    return BadRequest(new { errors = errorMessages });
-            //}
+            }
+            catch 
+            {
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
+                return BadRequest(new { errors = errorMessages });
+            }
         }
     }
 }

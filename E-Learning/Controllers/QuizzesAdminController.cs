@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using E_Learning.Helpers;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace E_Learning.Controllers
 {
@@ -14,24 +15,30 @@ namespace E_Learning.Controllers
     public class QuizzesAdminController : ControllerBase
     {
         private readonly IQuizRepository _quizRepository;
+        private readonly ITranslator _translator;
 
-        public QuizzesAdminController(IQuizRepository quizRepository)
+        public QuizzesAdminController(IQuizRepository quizRepository, ITranslator translator)
         {
             _quizRepository = quizRepository;
+            _translator = translator;
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPost("create-quiz")]
         public IActionResult CreateQuiz([FromBody] Quiz quiz)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 var newQuiz = new Quiz()
                 {
                     title_EN = quiz.title_EN,
+                    title_FR = quiz.title_FR ?? quiz.title_EN,
                     Slug_EN = new Slugify.SlugHelper().GenerateSlug(quiz.title_EN),
+                    Slug_FR = quiz.title_FR != null ? new Slugify.SlugHelper().GenerateSlug(quiz.title_FR) : new Slugify.SlugHelper().GenerateSlug(quiz.title_EN),
                     Description_EN = quiz.Description_EN,
+                    Description_FR = quiz.Description_FR ?? quiz.Description_EN,
                     ImagePath = quiz.ImagePath,
                     Languages = quiz.Languages,
                     Duration = quiz.Duration,
@@ -50,29 +57,33 @@ namespace E_Learning.Controllers
 
                 return Ok(new { createdQuiz });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPut("update-quiz")]
         public IActionResult UpdateQuiz([FromBody] Quiz quiz)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 var qz = _quizRepository.FindQuizById(quiz.Id);
-                if(qz == null)
+                if (qz == null)
                 {
                     return NotFound();
                 }
 
                 qz.title_EN = quiz.title_EN;
+                qz.title_FR = quiz.title_FR ?? quiz.title_EN;
                 qz.Slug_EN = new Slugify.SlugHelper().GenerateSlug(quiz.title_EN);
+                qz.Slug_FR = quiz.title_FR != null ? new Slugify.SlugHelper().GenerateSlug(quiz.title_FR) : new Slugify.SlugHelper().GenerateSlug(quiz.title_EN);
                 qz.Description_EN = quiz.Description_EN;
+                qz.Description_FR = quiz.Description_FR ?? quiz.Description_EN;
                 qz.ImagePath = quiz.ImagePath;
                 qz.Languages = quiz.Languages;
                 qz.Duration = quiz.Duration;
@@ -83,17 +94,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedQuiz });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPut("trash-restore-quiz")]
         public IActionResult TrashRestoreQuiz([FromBody] Quiz quiz, [FromQuery] string action)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -117,17 +129,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedQuiz });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete-quiz")]
         public IActionResult DeleteQuiz([FromQuery] long quizId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -150,9 +163,9 @@ namespace E_Learning.Controllers
 
                 return Ok(new { deletedQuizId = deletedQuiz.Id });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new
                 {
                     errors = errorMessages
@@ -160,10 +173,11 @@ namespace E_Learning.Controllers
             }
         }
 
-        [AllowAnonymous]
+       [Authorize(Roles = "Admin")]
         [HttpPut("publish-quiz")]
         public IActionResult PublishQuiz([FromBody] Quiz quiz, [FromQuery] string action)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -187,17 +201,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedQuiz });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult GetQuizzes()
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -207,17 +222,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { quizzes });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpGet("trashed")]
         public IActionResult GetTrashedQuizzes()
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -227,9 +243,9 @@ namespace E_Learning.Controllers
 
                 return Ok(new { quizzes });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
@@ -238,46 +254,47 @@ namespace E_Learning.Controllers
 
         /////////////////////////////////
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpGet("questions")]
         public IActionResult GetQuestions([FromQuery] long? quizId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
-                if(quizId == null)
+                if (quizId == null)
                 {
                     return NotFound();
                 }
 
                 var questions = _quizRepository.GetQuestionsOnly(quizId.Value);
 
-                if(questions == null)
+                if (questions == null)
                 {
                     return NotFound();
                 }
 
                 return Ok(new { questions });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPost("create-question")]
         public IActionResult CreateQuestion([FromBody] Question question)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 var quiz = _quizRepository.FindQuizById(question.QuizId);
-                if(quiz == null)
+                if (quiz == null)
                 {
-                    errorMessages.Add("Quiz not found.");
-                    return BadRequest(new { errors = errorMessages });
+                    return NotFound();
                 }
 
                 var newQuestion = new Question()
@@ -286,6 +303,8 @@ namespace E_Learning.Controllers
                     QuizId = quiz.Id,
                     Text_EN = question.Text_EN,
                     Slug_EN = new Slugify.SlugHelper().GenerateSlug(question.Text_EN),
+                    Text_FR = question.Text_FR ?? question.Text_EN,
+                    Slug_FR = question.Text_FR != null ? new Slugify.SlugHelper().GenerateSlug(question.Text_FR) : new Slugify.SlugHelper().GenerateSlug(question.Text_EN),
                     ImagePath = question.ImagePath,
                     Duration = question.Duration,
                     CreatedAt = DateTime.Now,
@@ -301,18 +320,19 @@ namespace E_Learning.Controllers
 
                 return Ok(new { createdQuestion });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPut("update-question")]
         public IActionResult UpdateQuestion([FromBody] Question question)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -329,31 +349,34 @@ namespace E_Learning.Controllers
                 //    return BadRequest(new { errors = errorMessages });
                 //}
 
-            //    q.Quiz = quiz;
-             //   q.QuizId = quiz.Id;
+                //    q.Quiz = quiz;
+                //   q.QuizId = quiz.Id;
                 q.Text_EN = question.Text_EN;
+                q.Text_FR = question.Text_FR ?? question.Text_EN;
                 q.Slug_EN = new Slugify.SlugHelper().GenerateSlug(question.Text_EN);
+                q.Slug_FR = question.Text_FR != null ? new Slugify.SlugHelper().GenerateSlug(question.Text_FR) : new Slugify.SlugHelper().GenerateSlug(question.Text_EN);
                 q.ImagePath = question.ImagePath;
                 q.Duration = question.Duration;
                 q.UpdatedAt = DateTime.Now;
                 q.UpdatedBy = question.UpdatedBy;
- 
+
 
                 var updatedQuestion = _quizRepository.UpdateQuestion(q);
 
                 return Ok(new { updatedQuestion });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPut("trash-restore-question")]
         public IActionResult TrashRestoreQuestion([FromBody] Question question, [FromQuery] string action)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -363,12 +386,12 @@ namespace E_Learning.Controllers
                     return NotFound();
                 }
 
-                if(action == "trash")
+                if (action == "trash")
                 {
                     q.DeletedAt = DateTime.Now;
                     q.DeletedBy = question.DeletedBy;
                 }
-                else if(action == "restore")
+                else if (action == "restore")
                 {
                     q.DeletedAt = null;
                     q.DeletedBy = null;
@@ -378,17 +401,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedQuestion });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete-question")]
         public IActionResult DeleteQuestion([FromQuery] long questionId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -402,9 +426,9 @@ namespace E_Learning.Controllers
 
                 return Ok(new { deletedQuestionId = deletedQuestion.Id });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
@@ -412,10 +436,11 @@ namespace E_Learning.Controllers
         /////////////////////////////////
 
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpGet("answers")]
         public IActionResult GetAnswers([FromQuery] long? questionId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -433,17 +458,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { answers });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPost("create-answer")]
         public IActionResult CreateAnswer([FromBody] Answer answer)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -451,8 +477,7 @@ namespace E_Learning.Controllers
 
                 if (question == null)
                 {
-                    errorMessages.Add("Question not found.");
-                    return BadRequest(new { errors = errorMessages });
+                    return NotFound();
                 }
 
                 var newAnswer = new Answer()
@@ -460,6 +485,7 @@ namespace E_Learning.Controllers
                     Question = question,
                     QuestionId = question.Id,
                     Text_EN = answer.Text_EN,
+                    Text_FR = answer.Text_FR ?? answer.Text_EN,
                     ImagePath = answer.ImagePath,
                     IsCorrect = answer.IsCorrect,
                     CreatedAt = DateTime.Now,
@@ -474,21 +500,22 @@ namespace E_Learning.Controllers
 
                 return Ok(new { createdAnswer });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPut("update-answer")]
         public IActionResult UpdateAnswer([FromBody] Answer answer)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
-              
+
                 var a = _quizRepository.FindAnswerById(answer.Id);
 
                 if (a == null)
@@ -500,14 +527,14 @@ namespace E_Learning.Controllers
 
                 if (question == null)
                 {
-                    errorMessages.Add("Question not found.");
-                    return BadRequest(new { errors = errorMessages });
+                    return NotFound();
                 }
 
 
                 a.Question = question;
                 a.QuestionId = question.Id;
                 a.Text_EN = answer.Text_EN;
+                a.Text_FR = answer.Text_FR ?? answer.Text_EN;
                 a.ImagePath = answer.ImagePath;
                 a.IsCorrect = answer.IsCorrect;
                 a.UpdatedAt = DateTime.Now;
@@ -518,17 +545,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedAnswer });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPut("trash-restore-answer")]
         public IActionResult TrashRestoreAnswer([FromBody] Answer answer, [FromQuery] string action)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -540,12 +568,12 @@ namespace E_Learning.Controllers
                     return NotFound();
                 }
 
-                if(action == "trash")
+                if (action == "trash")
                 {
                     a.DeletedAt = DateTime.Now;
                     a.DeletedBy = answer.DeletedBy;
                 }
-                else if(action == "restore")
+                else if (action == "restore")
                 {
                     a.DeletedAt = null;
                     a.DeletedBy = null;
@@ -556,17 +584,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedAnswer });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete-answer")]
         public IActionResult DeleteAnswer([FromQuery] long answerId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -576,13 +605,13 @@ namespace E_Learning.Controllers
                     return NotFound();
                 }
 
-                var deletedAnswer= _quizRepository.DeleteAnswer(answer.Id);
+                var deletedAnswer = _quizRepository.DeleteAnswer(answer.Id);
 
                 return Ok(new { deletedAnswerId = deletedAnswer.Id });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using E_Learning.Helpers;
 using E_Learning.Models;
 using E_Learning.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -16,15 +17,19 @@ namespace E_Learning.Controllers
     public class TagsController : ControllerBase
     {
         private readonly ITagRepository _tagRepository;
+        private readonly ITranslator _translator;
 
-        public TagsController(ITagRepository tagRepository)
+        public TagsController(ITagRepository tagRepository, ITranslator translator)
         {
             _tagRepository = tagRepository;
+            _translator = translator;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult GetTags()
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -32,16 +37,17 @@ namespace E_Learning.Controllers
 
                 return Ok(new { tags });
             }
-            catch(Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("tag")]
         public IActionResult GetTagById([FromQuery] long id)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -49,16 +55,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { tag });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public IActionResult Create([FromBody] Tag tag)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -77,16 +85,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { createdTag });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("update")]
         public IActionResult Update([FromBody] Tag tag)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -100,16 +110,18 @@ namespace E_Learning.Controllers
 
                 return Ok(new { updatedTag });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete")]
         public IActionResult Delete([FromQuery] long id)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
@@ -122,9 +134,9 @@ namespace E_Learning.Controllers
 
                 return Ok(new { deletedTagId = deletedTag.Id });
             }
-            catch (Exception ex)
+            catch
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }

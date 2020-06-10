@@ -12,8 +12,10 @@ namespace E_Learning.Models
         public int Id { get; set; }
 
         public string Title_EN { get; set; }
+        public string Title_FR { get; set; }
 
         public string Slug { get; set; }
+        public string Slug_FR { get; set; }
         public string ImagePath { get; set; }
 
         public DateTime CreatedAt { get; set; }

@@ -18,29 +18,37 @@ namespace E_Learning.Controllers
     {
         private readonly ICourseRepository _courseRepository;
         private readonly IClassRepository _classRepository;
+        private readonly IFavoriteRepository _favoriteRepository;
         private readonly IUserQuizRepository _userQuizRepository;
+        private readonly ISavedSessionRepository _savedSessionRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITranslator _translator;
 
         public MemberController(ICourseRepository courseRepository,
                                 IClassRepository classRepository,
                                 IUserQuizRepository userQuizRepository,
-                                 UserManager<ApplicationUser>  userManager)
+                                IFavoriteRepository favoriteRepository,
+                                ISavedSessionRepository savedSessionRepository,
+                                 UserManager<ApplicationUser>  userManager,
+                                 ITranslator translator)
         {
             _courseRepository = courseRepository;
             _classRepository = classRepository;
             _userManager = userManager;
+            _favoriteRepository = favoriteRepository;
+            _savedSessionRepository = savedSessionRepository;
             _userQuizRepository = userQuizRepository;
+            _translator = translator;
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("courses")]
-        public async Task<IActionResult> GetMemberCourses([FromQuery] string userId)
+        public IActionResult GetMemberCourses([FromQuery] string userId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
-                var user = await _userManager.FindByIdAsync(userId);
-
                 var courses = new List<object>();
 
                 var allCourses = _courseRepository.GetCourses();
@@ -61,23 +69,24 @@ namespace E_Learning.Controllers
 
                 return Ok(new { courses });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
             }
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("get-user-quizzes")]
         public IActionResult GetUserQuiz([FromQuery] string userId)
         {
+            var lang = Request.Headers["language"].ToString();
             var errorMessages = new List<string>();
             try
             {
                 if (string.IsNullOrEmpty(userId))
                 {
-                    errorMessages.Add("Error fetching data");
+                    errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                     return BadRequest(new { errors = errorMessages });
                 }
 
@@ -87,7 +96,8 @@ namespace E_Learning.Controllers
                                                        {
                                                            id = x.Id,
                                                            quizId = x.QuizId,
-                                                           quizTitle = x.Quiz.title_EN,
+                                                           quizTitle_EN = x.Quiz.title_EN,
+                                                           quizTitle_FR = x.Quiz.title_FR,
                                                            takeDateTime = x.TakeDateTime.Value,
                                                            userId = x.UserId,
                                                            isStarted = x.IsStarted.Value,
@@ -99,10 +109,55 @@ namespace E_Learning.Controllers
 
                 return Ok(new { userQuizzes });
             }
-            catch (Exception ex)
+            catch 
             {
-                errorMessages.Add(ex.Message);
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
                 return BadRequest(new { errors = errorMessages });
+            }
+        }
+
+        [Authorize]
+        [HttpGet("dashboard")]
+        public IActionResult Dashboard([FromQuery] string userId)
+        {
+
+            var lang = Request.Headers["language"].ToString();
+            var errorMessages = new List<string>();
+            try
+            {
+                var coursesCount = 0;
+                var favoritesCount = _favoriteRepository.GetFavoritesByUserId(userId).Count;
+                var savedSessionsCount = _savedSessionRepository.GetSavedSessionsByUserId(userId).Count;
+                var userQuizzesCount = _userQuizRepository.GetUserQuizzesByUserId(userId).Count;
+
+                var courses = new List<object>();
+
+                var allCourses = _courseRepository.GetCourses();
+
+                foreach (var course in allCourses)
+                {
+                    if (course.Class != null)
+                    {
+                        foreach (var member in course.Class.ClassUsers)
+                        {
+                            if (member.UserId == userId)
+                            {
+                                coursesCount++;
+                            }
+                        }
+                    }
+                }
+
+
+                return Ok(new { coursesCount, favoritesCount, savedSessionsCount, userQuizzesCount });
+            }
+            catch
+            {
+                errorMessages.Add(_translator.GetTranslation("ERROR", lang));
+                return BadRequest(new
+                {
+                    errors = errorMessages
+                });
             }
         }
     }

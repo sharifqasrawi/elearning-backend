@@ -9,11 +9,14 @@ namespace E_Learning.Models
     {
         public long Id { get; set; }
         public string title_EN { get; set; }
+        public string title_FR { get; set; }
         public string Slug_EN { get; set; }
+        public string Slug_FR { get; set; }
         public string ImagePath { get; set; }
         public int? Duration { get; set; }
 
         public string Description_EN { get; set; }
+        public string Description_FR { get; set; }
         public string Languages { get; set; }
 
         public IList<Question> Questions { get; set; }
