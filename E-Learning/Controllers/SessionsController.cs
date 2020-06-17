@@ -46,7 +46,7 @@ namespace E_Learning.Controllers
         }
 
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet]
         public IActionResult GetSessions([FromQuery] long sectionId)
         {
@@ -182,7 +182,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("contents")]
         public IActionResult GetContents([FromQuery] long sessionId)
         {
@@ -336,7 +336,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("done")]
         public IActionResult GetUserDoneSessions([FromQuery] string userId, long? courseId)
         {
@@ -370,7 +370,7 @@ namespace E_Learning.Controllers
         }
 
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost("mark-session")]
         public async Task<IActionResult> MarkSession([FromBody] DoneSession doneSession)
         {
@@ -451,7 +451,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpDelete("unmark-session")]
         public IActionResult UnmarkSession([FromQuery] long? sessionId, string userId)
         {
@@ -499,7 +499,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("courses-progress")]
         public IActionResult GetUserCoursesProgress([FromQuery] string userId)
         {

@@ -34,7 +34,7 @@ namespace E_Learning.Controllers
             _translator = translator;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost]
         public async Task<IActionResult> RateCourse([FromBody] CourseRating courseRating)
         {

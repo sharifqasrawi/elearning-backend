@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_Learning.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20200524153716_updatedQuiz2")]
-    partial class updatedQuiz2
+    [Migration("20200613193054_addedVisits")]
+    partial class addedVisits
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,6 +20,48 @@ namespace E_Learning.Migrations
                 .HasAnnotation("ProductVersion", "3.1.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("E_Learning.Models.About", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Email1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Info")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Info_FR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title_FR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Website")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Abouts");
+                });
 
             modelBuilder.Entity("E_Learning.Models.Answer", b =>
                 {
@@ -50,6 +92,9 @@ namespace E_Learning.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Text_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -208,7 +253,13 @@ namespace E_Learning.Migrations
                     b.Property<string>("Slug")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -231,6 +282,9 @@ namespace E_Learning.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -307,6 +361,30 @@ namespace E_Learning.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("E_Learning.Models.Country", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("FlagPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name_FR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Countries");
+                });
+
             modelBuilder.Entity("E_Learning.Models.Course", b =>
                 {
                     b.Property<long>("Id")
@@ -332,6 +410,9 @@ namespace E_Learning.Migrations
                     b.Property<string>("Description_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Description_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
@@ -353,6 +434,9 @@ namespace E_Learning.Migrations
                     b.Property<string>("Prerequisites_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Prerequisites_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<float?>("Price")
                         .HasColumnType("real");
 
@@ -362,7 +446,13 @@ namespace E_Learning.Migrations
                     b.Property<string>("Slug_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -648,7 +738,13 @@ namespace E_Learning.Migrations
                     b.Property<string>("Slug_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Text_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -686,6 +782,9 @@ namespace E_Learning.Migrations
                     b.Property<string>("Description_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Description_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("Duration")
                         .HasColumnType("int");
 
@@ -704,6 +803,9 @@ namespace E_Learning.Migrations
                     b.Property<string>("Slug_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -711,6 +813,9 @@ namespace E_Learning.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("title_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("title_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -821,10 +926,16 @@ namespace E_Learning.Migrations
                     b.Property<string>("Name_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Name_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
                     b.Property<string>("Slug_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -871,7 +982,13 @@ namespace E_Learning.Migrations
                     b.Property<string>("Slug_EN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug_FR")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -895,6 +1012,9 @@ namespace E_Learning.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Content_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DeletedAt")
@@ -927,6 +1047,9 @@ namespace E_Learning.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name_FR")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -967,6 +1090,124 @@ namespace E_Learning.Migrations
                     b.HasIndex("UploadDirectoryId");
 
                     b.ToTable("UploadedFiles");
+                });
+
+            modelBuilder.Entity("E_Learning.Models.UserQuiz", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool?>("IsOngoing")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsStarted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsSubmitted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("QuizId")
+                        .HasColumnType("bigint");
+
+                    b.Property<float?>("Result")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime?>("TakeDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuizId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserQuizzes");
+                });
+
+            modelBuilder.Entity("E_Learning.Models.UserQuizAnswer", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long>("AnswerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("ChooseDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("QuestionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UserQuizId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnswerId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("UserQuizId");
+
+                    b.ToTable("UserQuizAnswers");
+                });
+
+            modelBuilder.Entity("E_Learning.Models.Visit", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("BrowserInfo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Continent_Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Continent_Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country_Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country_Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IPAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Latitude")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Longitude")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Region_Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Region_Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Zip")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Visits");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1314,6 +1555,41 @@ namespace E_Learning.Migrations
                         .WithMany("UploadedFiles")
                         .HasForeignKey("UploadDirectoryId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("E_Learning.Models.UserQuiz", b =>
+                {
+                    b.HasOne("E_Learning.Models.Quiz", "Quiz")
+                        .WithMany()
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("E_Learning.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("E_Learning.Models.UserQuizAnswer", b =>
+                {
+                    b.HasOne("E_Learning.Models.Answer", "Answer")
+                        .WithMany()
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("E_Learning.Models.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("E_Learning.Models.UserQuiz", "UserQuiz")
+                        .WithMany()
+                        .HasForeignKey("UserQuizId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -48,6 +48,7 @@ namespace E_Learning.Models
         public DbSet<UserQuiz> UserQuizzes { get; set; }
         public DbSet<UserQuizAnswer> UserQuizAnswers { get; set; }
 
+        public DbSet<Visit> Visits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

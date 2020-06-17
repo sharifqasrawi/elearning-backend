@@ -93,7 +93,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost("enroll")]
         public async Task<IActionResult> EnrollInClass([FromBody] ClassUser classUser, [FromQuery] string action, [FromQuery] string userId)
         {
@@ -181,7 +181,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPut("set-current-session")]
         public async Task<IActionResult> SetCurrentSession([FromBody] ClassUser classUser)
         {
@@ -232,7 +232,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("non-members")]
         public IActionResult GetNonMembers([FromQuery] string classId)
         {

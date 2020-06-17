@@ -67,8 +67,7 @@ namespace E_Learning.Controllers
                     {
                         string originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
 
-                        string fileName = Guid.NewGuid().ToString()
-                               + $"_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}"
+                        string fileName =  $"_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}"
                                + Path.GetExtension(originalFileName);
 
                         string fullPath = Path.Combine(path, fileName);
@@ -78,8 +77,8 @@ namespace E_Learning.Controllers
                             file.CopyTo(stream);
                         }
 
-                        var serverUrl = "https://localhost:44383";
-                        //var serverUrl = "http://test.qasrawi.fr";
+                        //var serverUrl = "https://localhost:44383";
+                        var serverUrl = "https://qasrawi.fr";
 
 
                         var newFile = new UploadedFile()

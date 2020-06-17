@@ -39,7 +39,7 @@ namespace E_Learning.Controllers
             _translator = translator;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] Comment comment)
         {
@@ -135,7 +135,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpDelete]
         public async Task<IActionResult> DeleteComment([FromQuery] long id)
         {
@@ -168,7 +168,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPut]
         public async Task<IActionResult> UpdateComment([FromBody] Comment comment)
         {
@@ -194,7 +194,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("count")]
         public IActionResult CommentsCount()
         {

@@ -46,7 +46,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("questions")]
         public IActionResult GetQuizQuestions([FromQuery] long? quizId)
         {

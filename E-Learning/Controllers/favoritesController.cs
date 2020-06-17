@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace E_Learning.Controllers
 {
     [Route("[controller]")]
-    [Authorize]
+    
     [ApiController]
     public class FavoritesController : ControllerBase
     {
@@ -33,7 +33,7 @@ namespace E_Learning.Controllers
             _translator = translator;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet]
         public IActionResult GetUserFavorites([FromQuery] string userId)
         {
@@ -58,7 +58,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost("add-course")]
         public async Task<IActionResult> AddCourseToFavorites([FromBody] Favorite favorite)
         {
@@ -102,7 +102,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpDelete("remove-course")]
         public IActionResult RemoveCourseFromFavorite([FromQuery] long? id)
         {
@@ -133,7 +133,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("courses")]
         public IActionResult GetUserFavoriteCourses([FromQuery] string userId)
         {

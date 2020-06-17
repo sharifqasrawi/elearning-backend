@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using E_Learning.Models;
 using AutoMapper;
@@ -14,15 +12,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
 using E_Learning.Helpers;
 using E_Learning.Repositories;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using E_Learning.Hubs;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace E_Learning
 {
@@ -121,8 +118,13 @@ namespace E_Learning
             services.AddScoped<IReportRepository, SqlReportRepository>();
             services.AddScoped<IQuizRepository, SqlQuizRepository>();
             services.AddScoped<IUserQuizRepository, SqlUserQuizRepository>();
+            services.AddScoped<IVisitRepository, SqlVisitRepository>();
 
             services.AddSingleton<ITranslator, Translator>();
+
+            services.AddHttpContextAccessor();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
 
 
             //services.AddMvc(options =>
@@ -137,7 +139,9 @@ namespace E_Learning
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", builder => builder
-                .WithOrigins("http://localhost:4200")
+                //.WithOrigins("http://localhost:4200")
+                .WithOrigins("https://*.qasrawi.fr/*")
+                .SetIsOriginAllowedToAllowWildcardSubdomains()
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
@@ -163,14 +167,8 @@ namespace E_Learning
             {
                 app.UseHsts();
             }
-            // global cors policy
+            app.UseHttpsRedirection();
             app.UseCors("CorsPolicy");
-
-            // Obsolete
-            //app.UseSignalR(routes =>
-            //{
-            //    routes.MapHub<SignalHub>("/signalHub");
-            //});
 
             app.UseStaticFiles();
 
@@ -181,6 +179,9 @@ namespace E_Learning
             });
 
             app.UseRouting();
+
+
+
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -205,6 +206,8 @@ namespace E_Learning
                         HttpTransportType.LongPolling;
                 });
             });
+
+           
 
             app.UseSpa(spa =>
             {

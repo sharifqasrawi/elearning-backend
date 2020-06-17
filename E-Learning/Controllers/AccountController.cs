@@ -118,7 +118,7 @@ namespace E_Learning.Controllers
                         {
                             var verificationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                            var confirmationLink = "http:/localhost:44383/security/email-confirmation?userId=" + user.Id + "&token=" + verificationToken.ToString();
+                            var confirmationLink = "https://qasrawi.fr/security/email-confirmation?userId=" + user.Id + "&token=" + verificationToken.ToString();
                             string To = user.Email;
                             string Subject = _translator.GetTranslation("ACCOUNT.REGISTER_EMAIL_SUBJECT", lang);
                             string Body = _translator.GetTranslation("ACCOUNT.REGISTER_EMAIL_MESSAGE", lang) + " : " + $"<br><a href=\"{confirmationLink}\"> {confirmationLink}</a>";
@@ -292,7 +292,7 @@ namespace E_Learning.Controllers
                 var verificationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
 
-                var confirmationLink = "http:/localhost:44383/security/email-confirmation?userId=" + user.Id + "&token=" + verificationToken.ToString();
+                var confirmationLink = "https://qasrawi.fr/security/email-confirmation?userId=" + user.Id + "&token=" + verificationToken.ToString();
                 string To = user.Email;
                 string Subject = _translator.GetTranslation("ACCOUNT.REGISTER_EMAIL_SUBJECT", lang);
                 string Body = _translator.GetTranslation("ACCOUNT.REGISTER_EMAIL_MESSAGE", lang) + " : " + $"<br><a href=\"{confirmationLink}\"> {confirmationLink}</a>";
@@ -329,7 +329,7 @@ namespace E_Learning.Controllers
                 try
                 {
                     var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    var resetPwdLink = "http:/localhost:44383/security/reset-password?email=" + user.Email + "&token=" + resetToken.ToString();
+                    var resetPwdLink = "https://qasrawi.fr/security/reset-password?email=" + user.Email + "&token=" + resetToken.ToString();
                     string To = user.Email;
                     string Subject = _translator.GetTranslation("ACCOUNT.RESET_PASSWORD_EMAIL_SUBJECT", lang);
                     string Body = _translator.GetTranslation("ACCOUNT.RESET_PASSWORD_EMAIL_MESSAGE", lang) + " : " + $"<br><a href=\"{resetPwdLink}\"> {resetPwdLink}</a>";
@@ -391,8 +391,8 @@ namespace E_Learning.Controllers
             return BadRequest(new { errors = errorMessages });
         }
 
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost("change-password")]
-        [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {
             var lang = Request.Headers["language"].ToString();

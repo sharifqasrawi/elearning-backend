@@ -33,7 +33,7 @@ namespace E_Learning.Controllers
         }
 
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet]
         public IActionResult GetSavedSessions([FromQuery] string userId)
         {
@@ -58,7 +58,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("sessions")]
         public IActionResult GetSavedSessions2([FromQuery] string userId)
         {
@@ -109,7 +109,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost]
         public async Task<IActionResult> SaveSession([FromBody] SavedSession savedSession)
         {
@@ -153,7 +153,7 @@ namespace E_Learning.Controllers
                 return BadRequest(new { errors = errorMessages });
             }
         }
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpDelete]
         public IActionResult RemoveSession([FromQuery] long? id)
         {

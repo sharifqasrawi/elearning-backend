@@ -477,7 +477,7 @@ namespace E_Learning.Controllers
         }
 
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPut("update-profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserDto userDto)
         {

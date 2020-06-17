@@ -43,7 +43,7 @@ namespace E_Learning.Controllers
             _translator = translator;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost("like-course")]
         public async Task<IActionResult> LikeCourse([FromBody] Like like, [FromQuery] string action)
         {
@@ -103,7 +103,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost("like-comment")]
         public async Task<IActionResult> LikeComment([FromBody] Like like, [FromQuery] string action)
         {

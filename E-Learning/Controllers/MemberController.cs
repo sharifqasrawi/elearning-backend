@@ -41,7 +41,7 @@ namespace E_Learning.Controllers
             _translator = translator;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("courses")]
         public IActionResult GetMemberCourses([FromQuery] string userId)
         {
@@ -76,7 +76,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("get-user-quizzes")]
         public IActionResult GetUserQuiz([FromQuery] string userId)
         {
@@ -116,7 +116,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("dashboard")]
         public IActionResult Dashboard([FromQuery] string userId)
         {

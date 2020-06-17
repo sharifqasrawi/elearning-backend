@@ -32,7 +32,7 @@ namespace E_Learning.Controllers
             _translator = translator;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost("start-quiz")]
         public async Task<IActionResult> StartQuiz([FromBody] UserQuiz userQuiz)
         {
@@ -81,7 +81,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost("choose-answer")]
         public IActionResult ChooseAnswer([FromBody] UserQuizAnswer userQuizAnswer)
         {
@@ -135,7 +135,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("get-user-quiz")]
         public IActionResult GetUserQuiz([FromQuery] string userId, [FromQuery] long? quizId)
         {
@@ -162,7 +162,7 @@ namespace E_Learning.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPost("submit-quiz")]
         public IActionResult SubmitQuiz([FromBody] UserQuiz userQuiz)
         {

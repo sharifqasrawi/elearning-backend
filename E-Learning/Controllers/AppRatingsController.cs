@@ -34,7 +34,7 @@ namespace E_Learning.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         public async Task<IActionResult> RateApp([FromBody] AppRating   appRating)
         {
             var lang = Request.Headers["language"].ToString();

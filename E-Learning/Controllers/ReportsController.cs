@@ -117,7 +117,7 @@ namespace E_Learning.Controllers
 
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpGet("by-user")]
         public IActionResult GetReportsByUserId([FromQuery] string userId)
         {
@@ -171,7 +171,7 @@ namespace E_Learning.Controllers
 
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Author, User")]
         [HttpPut("mark-reply-seen")]
         public IActionResult MarkReplySeen([FromBody] Report report)
         {

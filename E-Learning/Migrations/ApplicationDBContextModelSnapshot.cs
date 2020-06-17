@@ -1157,6 +1157,60 @@ namespace E_Learning.Migrations
                     b.ToTable("UserQuizAnswers");
                 });
 
+            modelBuilder.Entity("E_Learning.Models.Visit", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("BrowserInfo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Continent_Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Continent_Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country_Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country_Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DayVisitsCount")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("IPAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Latitude")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Longitude")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Region_Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Region_Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Zip")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Visits");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
